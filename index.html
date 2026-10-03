@@ -103,7 +103,7 @@ $('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / 
 function del(){if(confirm('Delete this bill?')){const id=cur.id;S.calcs=S.calcs.filter(c=>c!==cur);cur=null;if(U)db.collection('users').doc(U.uid).collection('bills').doc(id).delete().catch(er);home()}}
 const nf=x=>String(Math.round(x*100)/100),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],fdn=t=>{const d=new Date(t);return d.getDate()+'-'+MN[d.getMonth()]+'-'+d.getFullYear()};
 function bill(){const c=cur,r=calc(c),b=S.biz,P=[...r.lines,...r.ex].filter(x=>x.am||x.rt),G=r.GR>0,mats=[...new Set(c.rows.map(x=>(x.m||'').trim()).filter(Boolean))].join(', ');
-$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="window.print()">Print</button><button onclick="img()">Save as Image</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
+$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="img()">Save as Image</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
 <div class="sc" id="pw"><div id="bill"><div class="ti">${esc(b.name)}</div>
 <div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div>
 <div class="tg">${esc(b.addr)}</div>
@@ -116,11 +116,17 @@ ${c.rows.map((x,n)=>`<tr class="dr"><td>${n+1}</td><td>${r.rows[n].mo?nf(r.rows[
 <div class="sg">Customer Signature: ____________________<br>Thank you for your business.</div></div></div>`;setPage();fit()}
 const PS={A4:{w:714,h:1036},A5:{w:484,h:712}};
 function setPage(){$('pg').textContent='@page{size:'+(S.ps||'A4')+' portrait;margin:10mm}'}
-function fit(){const b=$('bill');if(!b)return;const P=PS[S.ps||'A4'],T=[...b.querySelectorAll('tr.dr')];
+function unfit(){const b=$('bill'),w=$('pw');if(!b||!w)return;b.style.transform='';b.style.transformOrigin='';b.style.width=PS[S.ps||'A4'].w+'px';w.style.width='';w.style.height='';w.style.overflow=''}
+function fit(){const b=$('bill');if(!b)return;unfit();const P=PS[S.ps||'A4'],T=[...b.querySelectorAll('tr.dr')];
 b.style.width=P.w+'px';b.style.minHeight='0';T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=''));
 const extra=P.h-b.offsetHeight;if(extra>0&&T.length){const per=Math.max(0,Math.min(16,Math.floor(extra*0.9/T.length/2)));T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=(3+per)+'px 6px'))}
 b.style.minHeight=P.h+'px'}
-function img(){const m=$('md');m.style.display='block';m.innerHTML='<p style="color:#fff">Preparing image…</p>';
+function printFit(){const b=$('bill'),w=$('pw'),P=PS[S.ps||'A4'];unfit();b.querySelectorAll('tr.dr td').forEach(c=>c.style.padding='');b.style.minHeight='0';let H=b.offsetHeight;
+if(H<=P.h){fit();return}
+let s=1;for(let i=0;i<8;i++){const n=Math.min(1,P.h/H);if(Math.abs(n-s)<0.004)break;s=n;b.style.width=Math.round(P.w/s)+'px';H=b.offsetHeight}
+if(H*s>P.h)s=P.h/H;b.style.transformOrigin='top left';b.style.transform='scale('+s+')';w.style.width=P.w+'px';w.style.height=Math.floor(H*s)+'px';w.style.overflow='hidden'}
+function doPrint(){printFit();window.onafterprint=()=>{unfit();fit()};setTimeout(()=>window.print(),100)}
+function img(){unfit();fit();const m=$('md');m.style.display='block';m.innerHTML='<p style="color:#fff">Preparing image…</p>';
 html2canvas($('bill'),{scale:3,backgroundColor:'#fff'}).then(cv=>{const u=cv.toDataURL('image/png');
 m.innerHTML=`<p style="color:#fff">Press and hold the image to save it, or use Share.</p><img src="${u}"><div class="row"><a class="bt" download="${cur.name.replace(/\W+/g,'_')}.png" href="${u}">Download</a><button id="sh">Share</button><button class="s" onclick="$('md').style.display='none'">Close</button></div>`;
 $('sh').onclick=()=>cv.toBlob(bl=>{try{navigator.share({files:[new File([bl],cur.name.replace(/\W+/g,'_')+'.png',{type:'image/png'})],title:cur.name}).catch(()=>{})}catch(e){alert('Share not supported. Press and hold the image to save.')}})}).catch(()=>{m.innerHTML='<p style="color:#fff">Could not make image. Use Print → Save as PDF.</p><button onclick="$(\'md\').style.display=\'none\'">Close</button>'})}
