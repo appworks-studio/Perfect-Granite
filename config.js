@@ -8,4 +8,4 @@ window.CFG={
 };
 
 // Print height. If the PDF still goes to 2 pages, make these numbers smaller (for example 860 and 580).
-window.PRINT_H={A4:900,A5:610};
+window.PRINT_H={A4:850,A5:550};
