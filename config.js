@@ -6,3 +6,6 @@ window.CFG={
   messagingSenderId: "900583585321",
   appId: "1:900583585321:web:5cf1962264b1b5f2800e38"
 };
+
+// Print height. If the PDF still goes to 2 pages, make these numbers smaller (for example 860 and 580).
+window.PRINT_H={A4:900,A5:610};

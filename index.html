@@ -51,10 +51,10 @@ const er=e=>{if(e&&e.code=='permission-denied'){alert('Access is not enabled for
 const save=()=>{clearTimeout(tmr);tmr=setTimeout(flush,700)};
 function flush(){clearTimeout(tmr);if(!U)return;const d=db.collection('users').doc(U.uid);
 if(cur){const o=JSON.parse(JSON.stringify(cur));delete o._k;d.collection('bills').doc(cur.id).set(o).catch(er)}
-d.collection('meta').doc('s').set({biz:S.biz,n:S.n,ps:S.ps||'A4'}).catch(er)}
+d.collection('meta').doc('s').set({biz:S.biz,n:S.n,ps:S.ps||'A4',pf:S.pf||'n'}).catch(er)}
 function listen(){const d=db.collection('users').doc(U.uid);
 unsubs=[d.collection('bills').onSnapshot(sn=>{S.calcs=sn.docs.map(x=>{const o=x.data();return cur&&cur.id==o.id?cur:o});if(cur&&!S.calcs.includes(cur))S.calcs.push(cur);if(!cur&&$('ls'))lst()},er),
-d.collection('meta').doc('s').onSnapshot(x=>{if(x.exists){const o=x.data();if(o.biz&&o.biz.name)S.biz=o.biz;S.n=Math.max(S.n,o.n||0);if(o.ps)S.ps=o.ps}},er)]}
+d.collection('meta').doc('s').onSnapshot(x=>{if(x.exists){const o=x.data();if(o.biz&&o.biz.name)S.biz=o.biz;S.n=Math.max(S.n,o.n||0);if(o.ps)S.ps=o.ps;if(o.pf)S.pf=o.pf}},er)]}
 auth.onAuthStateChanged(u=>{unsubs.forEach(f=>f());unsubs=[];U=u;cur=null;S.calcs=[];if(u){listen();home()}else loginView()});
 function loginView(){$('app').innerHTML=`<div class="card" style="margin-top:12vh"><h1>Granite Bill</h1><label>Email</label><input id="em" type="email" autocomplete="username"><label style="margin-top:8px">Password</label><input id="pw2" type="password" autocomplete="current-password"><div class="mu" id="le" style="color:#b3261e;margin:6px 0"></div><button style="width:100%" onclick="login()">Login</button><p class="mu">Access is given by the admin only.</p></div>`}
 function login(){$('le').textContent='';auth.signInWithEmailAndPassword($('em').value.trim(),$('pw2').value).catch(e=>{$('le').textContent=e.code=='auth/network-request-failed'?'No internet. Connect once to log in.':'Wrong email or password, or access removed.'})}
@@ -103,7 +103,7 @@ $('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / 
 function del(){if(confirm('Delete this bill?')){const id=cur.id;S.calcs=S.calcs.filter(c=>c!==cur);cur=null;if(U)db.collection('users').doc(U.uid).collection('bills').doc(id).delete().catch(er);home()}}
 const nf=x=>String(Math.round(x*100)/100),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],fdn=t=>{const d=new Date(t);return d.getDate()+'-'+MN[d.getMonth()]+'-'+d.getFullYear()};
 function bill(){const c=cur,r=calc(c),b=S.biz,P=[...r.lines,...r.ex].filter(x=>x.am||x.rt),G=r.GR>0,mats=[...new Set(c.rows.map(x=>(x.m||'').trim()).filter(Boolean))].join(', ');
-$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="img()">Save as Image</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
+$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="img()">Save as Image</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select><select id="pf" style="width:auto" onchange="S.pf=this.value;save();fit()"><option value="n" ${(S.pf||'n')=='n'?'selected':''}>Fit: Normal</option><option value="s" ${S.pf=='s'?'selected':''}>Fit: Smaller</option><option value="x" ${S.pf=='x'?'selected':''}>Fit: Smallest</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
 <div class="sc" id="pw"><div id="bill"><div class="ti">${esc(b.name)}</div>
 <div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div>
 <div class="tg">${esc(b.addr)}</div>
@@ -114,14 +114,14 @@ ${c.rows.map((x,n)=>`<tr class="dr"><td>${n+1}</td><td>${r.rows[n].mo?nf(r.rows[
 <tr class="tt"><td colspan="${G?5:4}">Total</td><td>${nf(r.N)}</td><td>${nf(r.A)}</td></tr></table>
 <table><tr><td style="text-align:left;padding-left:12px">TOTAL PRICE</td><td style="width:34%;font-weight:700">${nf(r.tot)}</td></tr><tr><td style="text-align:left;padding-left:12px">PAID</td><td>${nf(+c.paid||0)}</td></tr><tr><td style="text-align:left;padding-left:12px"><b>BALANCE</b></td><td style="font-weight:700">${nf(r.bal)}</td></tr></table>
 <div class="sg">Customer Signature: ____________________<br>Thank you for your business.</div></div></div>`;setPage();fit()}
-const PS={A4:{w:714,h:900},A5:{w:484,h:600}};
+const PH=window.PRINT_H||{};const PS={A4:{w:714,h:PH.A4||960},A5:{w:484,h:PH.A5||650}},pp=()=>{const p=PS[S.ps||'A4'];return{w:p.w,h:Math.round(p.h*({n:1,s:.94,x:.88}[S.pf||'n']))}};
 function setPage(){$('pg').textContent='@page{size:'+(S.ps||'A4')+' portrait;margin:10mm}'}
 function unfit(){const b=$('bill'),w=$('pw');if(!b||!w)return;b.style.transform='';b.style.transformOrigin='';b.style.width=PS[S.ps||'A4'].w+'px';w.style.width='';w.style.height='';w.style.overflow=''}
-function fit(){const b=$('bill');if(!b)return;unfit();const P=PS[S.ps||'A4'],T=[...b.querySelectorAll('tr.dr')];
+function fit(){const b=$('bill');if(!b)return;unfit();const P=pp(),T=[...b.querySelectorAll('tr.dr')];
 b.style.width=P.w+'px';b.style.minHeight='0';T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=''));
 const extra=P.h-b.offsetHeight;if(extra>0&&T.length){const per=Math.max(0,Math.min(16,Math.floor(extra*0.9/T.length/2)));T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=(3+per)+'px 6px'))}
 b.style.minHeight=P.h+'px'}
-function printFit(){const b=$('bill'),w=$('pw'),P=PS[S.ps||'A4'];unfit();b.querySelectorAll('tr.dr td').forEach(c=>c.style.padding='');b.style.minHeight='0';let H=b.offsetHeight;
+function printFit(){const b=$('bill'),w=$('pw'),P=pp();unfit();b.querySelectorAll('tr.dr td').forEach(c=>c.style.padding='');b.style.minHeight='0';let H=b.offsetHeight;
 if(H<=P.h){fit();return}
 let s=1;for(let i=0;i<8;i++){const n=Math.min(1,P.h/H);if(Math.abs(n-s)<0.004)break;s=n;b.style.width=Math.round(P.w/s)+'px';H=b.offsetHeight}
 if(H*s>P.h)s=P.h/H;b.style.transformOrigin='top left';b.style.transform='scale('+s+')';w.style.width=P.w+'px';w.style.height=Math.floor(H*s)+'px';w.style.overflow='hidden'}
