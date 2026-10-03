@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Granite Bill</title>
+<script src="config.js"></script>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f4e79"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--tx:#1d1d1b;--mu:#6b6a66;--ac:#1f4e79;--bd:#d9d7d0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171716;--card:#232321;--tx:#f0efea;--mu:#9d9b94;--ac:#6aa9e0;--bd:#3a3a37}}
+:root[data-theme="dark"]{--bg:#171716;--card:#232321;--tx:#f0efea;--mu:#9d9b94;--ac:#6aa9e0;--bd:#3a3a37}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.w{max-width:560px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+label{display:block;font-size:12px;color:var(--mu);margin-bottom:2px}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+.g{display:grid;gap:8px;grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
+button{padding:10px 14px;border:0;border-radius:8px;background:var(--ac);color:#fff;font:inherit;font-weight:600}
+button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.it{border-top:1px dashed var(--bd);padding-top:8px;margin-top:8px}
+.li{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--bd)}
+.mu{color:var(--mu);font-size:13px}.tot{display:flex;justify-content:space-between;padding:3px 0}.v{padding:9px 0;font-weight:600}
+.gt{font-size:19px;font-weight:700;border-top:2px solid var(--tx);margin-top:6px;padding-top:6px}
+.sc{overflow-x:auto}
+#bill{background:#fff;color:#000;padding:22px 20px;font:14px/1.35 Georgia,'Times New Roman',serif;border:1px solid #000;display:flex;flex-direction:column}
+#bill .ti{text-align:center;font-size:27px;font-weight:700;margin-bottom:12px}
+#bill .top{display:flex;justify-content:space-between;align-items:center;font-size:15px}
+#bill .dt{border:1px solid #000;width:46%;padding:2px 8px;display:flex;justify-content:space-between;font-weight:700}
+#bill .tg{text-align:center;font-size:13.5px;margin:4px 0 6px;padding-bottom:6px;border-bottom:1px solid #000}
+#bill .nm{display:flex;justify-content:space-between;font-size:16px;padding:6px 10px 0}
+#bill .mt{font-size:16px;padding:8px 6px 8px}
+#bill table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border-top:1px solid #000;border-left:1px solid #000;margin:0 0 10px}
+#bill th,#bill td{border-right:1px solid #000;border-bottom:1px solid #000;padding:3px 6px;text-align:center;font-size:15px}
+#bill th{font-weight:700}#bill .tt td{font-weight:700}
+#bill .sg{width:max-content;margin:auto 0 0 auto;padding-top:26px;font-size:15px}
+a.bt{display:inline-block;padding:10px 14px;border-radius:8px;background:var(--ac);color:#fff;font-weight:600;text-decoration:none}
+.md{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;z-index:9;overflow:auto;padding:16px}.md img{width:100%;background:#fff}
+@media print{body>*:not(#pw){display:none!important}#pw{display:block!important;overflow:visible}.noprint{display:none!important}#bill{margin:0}}
+</style><style id="pg">@page{size:A4 portrait;margin:10mm}</style></head><body>
+<div class="w" id="app"></div><div class="md" id="md"></div><datalist id="ml"></datalist>
+<script>
+const K='mcalc_v2',DB={name:'PERFECT GRANITE AND TILES',phone:'9820886618 / 9082579359',addr:'ALL kinds of Granite, Marble, Tiles,Kota,Kadappa,Tandur, reti,cement & Other building Material. Govardhan Market, shil phata-taloja Road,Near Indian Oil Petrol Pump, Goteghar Daighar, Dist Thane- 421204.'};
+const CFG=window.CFG;
+let S={calcs:[],biz:{...DB,v2:1},n:0},cur=null,U=null,unsubs=[],tmr=null;
+firebase.initializeApp(CFG);const auth=firebase.auth(),db=firebase.firestore();db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+const er=e=>{if(e&&e.code=='permission-denied'){alert('Access is not enabled for this account. Please contact the admin.');auth.signOut()}else console.error(e)};
+const save=()=>{clearTimeout(tmr);tmr=setTimeout(flush,700)};
+function flush(){clearTimeout(tmr);if(!U)return;const d=db.collection('users').doc(U.uid);
+if(cur){const o=JSON.parse(JSON.stringify(cur));delete o._k;d.collection('bills').doc(cur.id).set(o).catch(er)}
+d.collection('meta').doc('s').set({biz:S.biz,n:S.n,ps:S.ps||'A4'}).catch(er)}
+function listen(){const d=db.collection('users').doc(U.uid);
+unsubs=[d.collection('bills').onSnapshot(sn=>{S.calcs=sn.docs.map(x=>{const o=x.data();return cur&&cur.id==o.id?cur:o});if(cur&&!S.calcs.includes(cur))S.calcs.push(cur);if(!cur&&$('ls'))lst()},er),
+d.collection('meta').doc('s').onSnapshot(x=>{if(x.exists){const o=x.data();if(o.biz&&o.biz.name)S.biz=o.biz;S.n=Math.max(S.n,o.n||0);if(o.ps)S.ps=o.ps}},er)]}
+auth.onAuthStateChanged(u=>{unsubs.forEach(f=>f());unsubs=[];U=u;cur=null;S.calcs=[];if(u){listen();home()}else loginView()});
+function loginView(){$('app').innerHTML=`<div class="card" style="margin-top:12vh"><h1>Granite Bill</h1><label>Email</label><input id="em" type="email" autocomplete="username"><label style="margin-top:8px">Password</label><input id="pw2" type="password" autocomplete="current-password"><div class="mu" id="le" style="color:#b3261e;margin:6px 0"></div><button style="width:100%" onclick="login()">Login</button><p class="mu">Access is given by the admin only.</p></div>`}
+function login(){$('le').textContent='';auth.signInWithEmailAndPassword($('em').value.trim(),$('pw2').value).catch(e=>{$('le').textContent=e.code=='auth/network-request-failed'?'No internet. Connect once to log in.':'Wrong email or password, or access removed.'})}
+function logout(){flush();auth.signOut()}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fd=t=>new Date(t).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'});
+const fdd=t=>new Date(t).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).replace(/ /g,'-');
+const f2=x=>(Math.round(x*100)/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const bw=w=>{w=+w||0;return w>0?Math.ceil(w/3-1e-9)*3:w};
+const newRow=()=>({m:'',g:'',mo:false,l:'',w:'',n:1}),EX=['Molding','Groove','Sink cut','Vertical','Sink','Kadappa','Transport','Additional','Custom…'];
+function calc(c){const M={},ord=[];let A=0,N=0,MO=0,GR=0;
+const rows=c.rows.map(r=>{const L=bw(r.l),B=bw(r.w),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n:0,gr=+r.g||0,k=(r.m||'').trim()||'Material';if(!M[k]){M[k]={a:0,n:0};ord.push(k)}M[k].a+=ar;M[k].n+=n;A+=ar;N+=n;MO+=mo;GR+=gr;return{L,B,ar,mo,gr}});
+const lines=ord.map(k=>{const p=c.pr[k]||{},q=p.per=='piece'?M[k].n:M[k].a,rt=+p.rate||0;return{name:k,q,rt,am:q*rt}});
+const ex=c.ex.map(e=>{const q=e.name=='Molding'?MO:e.name=='Groove'?GR:(+e.qty||0),rt=+e.rate||0;return{name:e.name,q,rt,am:q*rt}});
+const sum=0,hf=false,tot=+c.fin||0;return{rows,ord,lines,ex,A,N,MO,GR,sum,hf,adj:tot-sum,tot,bal:tot-(+c.paid||0)}}
+function home(){flush();cur=null;$('app').innerHTML=`<h1>Granite Bill <button class="s" onclick="biz()">Settings</button></h1><button style="width:100%" onclick="nw()">+ New Bill</button>
+<input id="q" placeholder="Search name or customer" oninput="lst()" style="margin:12px 0"><div class="card" id="ls"></div><div class="row"><button class="s" onclick="logout()">Logout</button></div><div class="mu" style="margin-top:8px">${esc(U&&U.email||'')} · ${navigator.onLine?'Online, saved to cloud':'Offline, will sync when online'}</div>`;lst()}
+function lst(){const q=($('q').value||'').toLowerCase();const L=S.calcs.filter(c=>(c.name+c.customer).toLowerCase().includes(q)).sort((a,b)=>b.updated-a.updated);
+$('ls').innerHTML=L.length?L.map(c=>`<div class="li" onclick="op('${c.id}')"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')} · Updated ${fd(c.updated)}</div></div><b>₹${f2(calc(c).tot)}</b></div>`).join(''):'<div class="mu">No bills yet.</div>'}
+function nw(){S.n++;const t=Date.now();cur={id:'c'+t,name:'Bill #'+String(S.n).padStart(3,'0'),created:t,updated:t,customer:'',mob:'',rows:[newRow()],pr:{},ex:[],paid:''};S.calcs.push(cur);save();ed()}
+function op(id){cur=S.calcs.find(c=>c.id==id);ed()}
+function ed(){const c=cur;
+$('ml').innerHTML=[...new Set(S.calcs.flatMap(x=>x.rows.map(r=>(r.m||'').trim())).filter(Boolean))].map(m=>`<option value="${esc(m)}">`).join('');
+$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><button onclick="bill()">Bill / Print</button></h1>
+<div class="card"><label>Bill name</label><input data-k="name" value="${esc(c.name)}"><div class="mu" id="dt"></div>
+<div class="g" style="margin-top:8px"><div><label>Customer name</label><input data-k="customer" value="${esc(c.customer)}"></div><div><label>Mobile</label><input data-k="mob" inputmode="tel" value="${esc(c.mob)}"></div></div>
+<div class="mu" style="margin-top:6px">Sizes in inches. Length and breadth are billed in steps of 3 (4.25→6, 74→75).</div></div>
+<div class="card"><b>Pieces</b><div id="rs"></div><div class="row"><button class="s" onclick="ar()">+ Add piece</button></div></div>
+<div class="card"><b>Price</b><div id="pz"></div></div>
+<div class="card" id="tt"></div><button class="d" onclick="del()">Delete this bill</button>`;
+document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;touch()});rs();pricing();touch()}
+function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><label>Material</label><input list="ml" data-r="${n}" data-f="m" value="${esc(r.m)}" placeholder="e.g. White, Starblack">
+<div class="g g3" style="margin-top:6px"><div><label>Length</label><input type="number" inputmode="decimal" data-r="${n}" data-f="l" value="${r.l}"></div><div><label>Breadth</label><input type="number" inputmode="decimal" data-r="${n}" data-f="w" value="${r.w}"></div><div><label>Nos</label><input type="number" inputmode="decimal" data-r="${n}" data-f="n" value="${r.n}"></div></div>
+<div class="g" style="margin-top:6px;align-items:end"><div><label>Groove (rft, optional)</label><input type="number" inputmode="decimal" data-r="${n}" data-f="g" value="${r.g}"></div><label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);padding-bottom:9px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;touch()"> Molding</label></div>
+<div class="mu" id="ra${n}"></div>${cur.rows.length>1?`<button class="s" style="margin-top:6px" onclick="rr(${n})">Remove</button>`:''}</div>`).join('');
+document.querySelectorAll('[data-r]').forEach(e=>e.oninput=()=>{cur.rows[e.dataset.r][e.dataset.f]=e.value;touch()})}
+function pricing(){$('pz').innerHTML=`<label>Final price ₹</label><input type="number" inputmode="decimal" data-k="fin" value="${cur.fin||''}"><div class="it"><label>Paid ₹</label><input type="number" inputmode="decimal" data-k="paid" value="${cur.paid||''}"></div>`;
+document.querySelectorAll('#pz [data-k]').forEach(e=>e.oninput=()=>{cur[e.dataset.k]=e.value;touch()})}
+const ar=()=>{cur.rows.push(newRow());rs();touch()},rr=n=>{cur.rows.splice(n,1);rs();touch()},rx=i=>{cur.ex.splice(i,1);pricing();touch()};
+function ax(){let n=$('xs').value;if(n=='Custom…'){n=(prompt('Line name')||'').trim();if(!n)return}cur.ex.push({name:n,qty:'',rate:''});pricing();touch()}
+function touch(){cur.updated=Date.now();save();const r=calc(cur);
+$('dt').textContent='Created '+fd(cur.created)+' · Last updated '+fd(cur.updated);
+r.rows.forEach((x,n)=>{const e=$('ra'+n);if(e)e.textContent=`Billed ${x.L} × ${x.B} · Area ${f2(x.ar)} sq ft`+(x.mo?` · Molding ${f2(x.mo)} rft`:'')});
+$('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / ${f2(r.A)} sq ft</b></div>${r.MO?`<div class="tot"><span>Total molding</span><b>${f2(r.MO)} rft</b></div>`:''}${r.hf&&Math.abs(r.adj)>0.005?`<div class="tot"><span>Calculated</span><span>₹${f2(r.sum)}</span></div><div class="tot"><span>Adjustment</span><span>${r.adj<0?'-':'+'}₹${f2(Math.abs(r.adj))}</span></div>`:''}<div class="tot gt"><span>TOTAL</span><span>₹${f2(r.tot)}</span></div><div class="tot"><span>Paid</span><span>₹${f2(+cur.paid||0)}</span></div><div class="tot"><b>BALANCE</b><b>₹${f2(r.bal)}</b></div>`}
+function del(){if(confirm('Delete this bill?')){const id=cur.id;S.calcs=S.calcs.filter(c=>c!==cur);cur=null;if(U)db.collection('users').doc(U.uid).collection('bills').doc(id).delete().catch(er);home()}}
+function bill(){const c=cur,r=calc(c),b=S.biz,P=[...r.lines,...r.ex].filter(x=>x.am||x.rt),G=r.GR>0,mats=[...new Set(c.rows.map(x=>(x.m||'').trim()).filter(Boolean))].join(', ');
+$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="window.print()">Print</button><button onclick="img()">Save as Image</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
+<div class="sc" id="pw"><div id="bill"><div class="ti">${esc(b.name)}</div>
+<div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div>
+<div class="tg">${esc(b.addr)}</div>
+<div class="nm"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div>
+<div class="mt">Material: &nbsp; ${esc(mats)}</div>
+<table><tr><th style="width:11%">S.No.</th><th>Molding</th>${G?'<th>Groove</th>':''}<th>length</th><th>breadth</th><th>nos</th><th>area</th></tr>
+${c.rows.map((x,n)=>`<tr class="dr"><td>${n+1}</td><td>${r.rows[n].mo?nf(r.rows[n].mo):''}</td>${G?`<td>${r.rows[n].gr?nf(r.rows[n].gr):''}</td>`:''}<td>${esc(x.l)}</td><td>${esc(x.w)}</td><td>${esc(x.n)}</td><td>${nf(r.rows[n].ar)}</td></tr>`).join('')}
+<tr class="tt"><td colspan="${G?5:4}">Total</td><td>${nf(r.N)}</td><td>${nf(r.A)}</td></tr></table>
+<table><tr><td style="text-align:left;padding-left:12px">TOTAL PRICE</td><td style="width:34%;font-weight:700">${nf(r.tot)}</td></tr><tr><td style="text-align:left;padding-left:12px">PAID</td><td>${nf(+c.paid||0)}</td></tr><tr><td style="text-align:left;padding-left:12px"><b>BALANCE</b></td><td style="font-weight:700">${nf(r.bal)}</td></tr></table>
+<div class="sg">Customer Signature: ____________________<br>Thank you for your business.</div></div></div>`;setPage();fit()}
+const PS={A4:{w:714,h:1036},A5:{w:484,h:712}};
+function setPage(){$('pg').textContent='@page{size:'+(S.ps||'A4')+' portrait;margin:10mm}'}
+function fit(){const b=$('bill');if(!b)return;const P=PS[S.ps||'A4'],T=[...b.querySelectorAll('tr.dr')];
+b.style.width=P.w+'px';b.style.minHeight='0';T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=''));
+const extra=P.h-b.offsetHeight;if(extra>0&&T.length){const per=Math.max(0,Math.min(16,Math.floor(extra*0.9/T.length/2)));T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=(3+per)+'px 6px'))}
+b.style.minHeight=P.h+'px'}
+function img(){const m=$('md');m.style.display='block';m.innerHTML='<p style="color:#fff">Preparing image…</p>';
+html2canvas($('bill'),{scale:3,backgroundColor:'#fff'}).then(cv=>{const u=cv.toDataURL('image/png');
+m.innerHTML=`<p style="color:#fff">Press and hold the image to save it, or use Share.</p><img src="${u}"><div class="row"><a class="bt" download="${cur.name.replace(/\W+/g,'_')}.png" href="${u}">Download</a><button id="sh">Share</button><button class="s" onclick="$('md').style.display='none'">Close</button></div>`;
+$('sh').onclick=()=>cv.toBlob(bl=>{try{navigator.share({files:[new File([bl],cur.name.replace(/\W+/g,'_')+'.png',{type:'image/png'})],title:cur.name}).catch(()=>{})}catch(e){alert('Share not supported. Press and hold the image to save.')}})}).catch(()=>{m.innerHTML='<p style="color:#fff">Could not make image. Use Print → Save as PDF.</p><button onclick="$(\'md\').style.display=\'none\'">Close</button>'})}
+function biz(){const b=S.biz;$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button></h1><div class="card"><b>Business details (shown on bill)</b>
+${[['name','Business name'],['phone','Mobile numbers'],['addr','Tagline / address']].map(([k,l])=>`<div style="margin-top:8px"><label>${l}</label><textarea rows="${k=='addr'?4:1}" data-b="${k}">${esc(b[k]||'')}</textarea></div>`).join('')}</div>`;
+document.querySelectorAll('[data-b]').forEach(e=>e.oninput=()=>{S.biz[e.dataset.b]=e.value;save()})}
+$('app').innerHTML='<div class="w mu">Loading…</div>';
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
