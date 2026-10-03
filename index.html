@@ -114,7 +114,7 @@ ${c.rows.map((x,n)=>`<tr class="dr"><td>${n+1}</td><td>${r.rows[n].mo?nf(r.rows[
 <tr class="tt"><td colspan="${G?5:4}">Total</td><td>${nf(r.N)}</td><td>${nf(r.A)}</td></tr></table>
 <table><tr><td style="text-align:left;padding-left:12px">TOTAL PRICE</td><td style="width:34%;font-weight:700">${nf(r.tot)}</td></tr><tr><td style="text-align:left;padding-left:12px">PAID</td><td>${nf(+c.paid||0)}</td></tr><tr><td style="text-align:left;padding-left:12px"><b>BALANCE</b></td><td style="font-weight:700">${nf(r.bal)}</td></tr></table>
 <div class="sg">Customer Signature: ____________________<br>Thank you for your business.</div></div></div>`;setPage();fit()}
-const PS={A4:{w:714,h:960},A5:{w:484,h:650}};
+const PS={A4:{w:714,h:900},A5:{w:484,h:600}};
 function setPage(){$('pg').textContent='@page{size:'+(S.ps||'A4')+' portrait;margin:10mm}'}
 function unfit(){const b=$('bill'),w=$('pw');if(!b||!w)return;b.style.transform='';b.style.transformOrigin='';b.style.width=PS[S.ps||'A4'].w+'px';w.style.width='';w.style.height='';w.style.overflow=''}
 function fit(){const b=$('bill');if(!b)return;unfit();const P=PS[S.ps||'A4'],T=[...b.querySelectorAll('tr.dr')];
