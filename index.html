@@ -39,7 +39,7 @@ button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}
 #bill .sg{width:max-content;margin:auto 0 0 auto;padding-top:26px;font-size:15px}
 a.bt{display:inline-block;padding:10px 14px;border-radius:8px;background:var(--ac);color:#fff;font-weight:600;text-decoration:none}
 .md{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;z-index:9;overflow:auto;padding:16px}.md img{width:100%;background:#fff}
-@media print{body>*:not(#pw){display:none!important}#pw{display:block!important;overflow:visible}.noprint{display:none!important}#bill{margin:0}}
+@media print{html,body{background:#fff!important}body>*:not(#app){display:none!important}.noprint{display:none!important}.w{max-width:none;padding:0;margin:0}#pw{display:block!important;overflow:visible}#bill{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style><style id="pg">@page{size:A4 portrait;margin:10mm}</style></head><body>
 <div class="w" id="app"></div><div class="md" id="md"></div><datalist id="ml"></datalist>
 <script>
