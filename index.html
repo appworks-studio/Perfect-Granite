@@ -69,7 +69,7 @@ const bw=(w,s=3)=>{w=+w||0;return w>0?Math.ceil(w/s-1e-9)*s:w};
 const stepOf=c=>c.kind=='kadappa'?6:3;
 const newRow=()=>({m:'',g:'',mo:false,mt:'',l:'',w:'',n:0}),EX=['Molding','Groove','Sink cut','Vertical','Sink','Kadappa','Transport','Additional','Custom…'];
 const FX=[['Molding','mo'],['Sink cut','sc'],['Vertical','vt'],['Sink','sk'],['Kadappa','kd'],['Transport','tr'],['Groove','gr'],['Additional','ad']],has=v=>String(v==null?'':v).trim()!=='';
-const MTY=['cm','Dp','pata','fr','hr'];
+const MTY=['Cm','Dp','Pata','Fr','Hr'],cap=s=>String(s==null?'':s).replace(/(^|[\s+\/-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const matOf=c=>c.mat!=null?c.mat:((c.rows[0]&&c.rows[0].m)||'');
 function calc(c){const nm=(matOf(c)||'').trim()||'Material';let A=0,N=0,MO=0;
 const st=stepOf(c);const rows=c.rows.map(r=>{const L=bw(r.l,st),B=bw(r.w,st),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n*(String(r.mt||'').includes('+')?2:1):0;A+=ar;N+=n;MO+=mo;return{L,B,ar,mo}});
@@ -87,16 +87,16 @@ function ed(){const c=cur;
 $('ml').innerHTML=[...new Set(S.calcs.map(x=>(matOf(x)||'').trim()).filter(Boolean))].map(m=>`<option value="${esc(m)}">`).join('');
 $('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><button onclick="bill()">Bill / Print</button></h1>
 <div class="card"><label>Bill name</label><input data-k="name" value="${esc(c.name)}"><div class="mu" id="dt"></div>
-<div class="g" style="margin-top:8px"><div><label>Material (one per bill)</label><input list="ml" data-k="mat" value="${esc(matOf(c))}" placeholder="e.g. White"></div><div><label>Type</label><select data-k="kind"><option value="marble" ${c.kind!='kadappa'?'selected':''}>Marble</option><option value="kadappa" ${c.kind=='kadappa'?'selected':''}>Kadappa</option></select></div></div>
-<div class="g" style="margin-top:8px"><div><label>Customer name</label><input data-k="customer" value="${esc(c.customer)}"></div><div><label>Mobile</label><input data-k="mob" inputmode="tel" value="${esc(c.mob)}"></div></div>
+<div class="g" style="margin-top:8px"><div><label>Material (one per bill)</label><input list="ml" data-k="mat" autocapitalize="words" value="${esc(matOf(c))}" placeholder="e.g. White"></div><div><label>Type</label><select data-k="kind"><option value="marble" ${c.kind!='kadappa'?'selected':''}>Marble</option><option value="kadappa" ${c.kind=='kadappa'?'selected':''}>Kadappa</option></select></div></div>
+<div class="g" style="margin-top:8px"><div><label>Customer name</label><input data-k="customer" autocapitalize="words" value="${esc(c.customer)}"></div><div><label>Mobile</label><input data-k="mob" inputmode="tel" value="${esc(c.mob)}"></div></div>
 <div class="mu" id="stp" style="margin-top:6px"></div></div>
 <div class="card"><b>Pieces</b><div id="rs"></div><div class="row"><button class="s" onclick="ar()">+ Add piece</button></div></div>
 <div class="card"><b>Price</b><div id="pz"></div></div>
 <div class="card" id="tt"></div><button class="d" onclick="del()">Delete this bill</button>`;
-document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;touch()});rs();pricing();touch()}
+document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;if(e.dataset.k=='kind'){c.mat=e.value=='kadappa'?'Kadappa':'';const m=document.querySelector('[data-k=mat]');if(m)m.value=c.mat}touch()});rs();pricing();touch()}
 function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><div class="g g3"><div><label>Length</label><input type="number" inputmode="decimal" data-r="${n}" data-f="l" value="${r.l}"></div><div><label>Breadth</label><input type="number" inputmode="decimal" data-r="${n}" data-f="w" value="${r.w}"></div><div><label>Nos</label><input type="number" inputmode="decimal" data-r="${n}" data-f="n" value="${r.n}" onfocus="this.select()"></div></div>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);margin-top:8px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;rs();touch()"> Molding</label>
-${r.mo?`<select data-r="${n}" data-f="mt" style="margin-top:6px"><option value="">Select molding type</option><optgroup label="Single side">${MTY.map(t=>`<option ${r.mt==t?'selected':''}>${t}</option>`).join('')}</optgroup><optgroup label="Both sides (double)">${MTY.map(t=>`<option ${r.mt==t+'+'+t?'selected':''}>${t}+${t}</option>`).join('')}</optgroup></select>`:''}
+${r.mo?`<select data-r="${n}" data-f="mt" style="margin-top:6px"><option value="">Select Molding Type</option><optgroup label="Single Side">${MTY.map(t=>`<option ${(r.mt||'').toLowerCase()==t.toLowerCase()?'selected':''}>${t}</option>`).join('')}</optgroup><optgroup label="Both Sides (Double)">${MTY.map(t=>`<option ${(r.mt||'').toLowerCase()==(t+'+'+t).toLowerCase()?'selected':''}>${t}+${t}</option>`).join('')}</optgroup></select>`:''}
 <div class="mu" id="ra${n}"></div>${cur.rows.length>1?`<button class="s" style="margin-top:6px" onclick="rr(${n})">Remove</button>`:''}</div>`).join('');
 document.querySelectorAll('[data-r]').forEach(e=>e.oninput=()=>{cur.rows[e.dataset.r][e.dataset.f]=e.value;touch()})}
 function pricing(){const r=calc(cur);cur._k=r.ord.join('|');
@@ -117,15 +117,15 @@ r.rows.forEach((x,n)=>{const e=$('ra'+n);if(e)e.textContent=`Billed ${x.L} × ${
 $('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / ${f2(r.A)} sq ft</b></div>${r.MO?`<div class="tot"><span>Total molding</span><b>${f2(r.MO)} rft</b></div>`:''}${r.hf&&Math.abs(r.adj)>0.005?`<div class="tot"><span>Calculated</span><span>₹${f2(r.sum)}</span></div><div class="tot"><span>Adjustment</span><span>${r.adj<0?'-':'+'}₹${f2(Math.abs(r.adj))}</span></div>`:''}<div class="tot gt"><span>TOTAL</span><span>₹${f2(r.tot)}</span></div><div class="tot"><span>Paid</span><span>₹${f2(+cur.paid||0)}</span></div><div class="tot"><b>BALANCE</b><b>₹${f2(r.bal)}</b></div>`}
 function del(){if(confirm('Delete this bill?')){const id=cur.id;S.calcs=S.calcs.filter(c=>c!==cur);cur=null;if(U)db.collection('users').doc(U.uid).collection('bills').doc(id).delete().catch(er);home()}}
 const nf=x=>String(Math.round(x*100)/100),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],fdn=t=>{const d=new Date(t);return d.getDate()+'-'+MN[d.getMonth()]+'-'+d.getFullYear()};
-function bill(){const c=cur,r=calc(c),b=S.biz,sep=S.sp=='sep',mats=matOf(c);
-const head=`<div class="ti">${esc(b.name)}</div><div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div><div class="tg">${esc(b.addr)}</div><div class="nm"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div><div class="mt">Material: &nbsp; ${esc(mats)}</div>`;
-const small=`<div class="ti" style="font-size:22px">${esc(b.name)}</div><div class="nm" style="padding-bottom:8px"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Date: &nbsp; ${fdn(c.created)}</span></div>`;
+function bill(){const c=cur,r=calc(c),b=S.biz,sep=S.sp=='sep',mats=cap(matOf(c));
+const head=`<div class="ti">${esc(b.name)}</div><div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div><div class="tg">${esc(b.addr)}</div><div class="nm"><span>Name: &nbsp; ${esc(cap(c.customer||''))}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div><div class="mt">Material: &nbsp; ${esc(mats)}</div>`;
+const small=`<div class="ti" style="font-size:22px">${esc(b.name)}</div><div class="nm" style="padding-bottom:8px"><span>Name: &nbsp; ${esc(cap(c.customer||''))}</span><span>Date: &nbsp; ${fdn(c.created)}</span></div>`;
 const TY=c.rows.some(x=>x.mo);
-const t1=`<table><tr><th class="im">Molding</th><th>length</th><th>breadth</th><th>nos</th>${TY?'<th>type</th>':''}<th class="im">area</th></tr>
-${c.rows.map((x,n)=>`<tr class="dr"><td class="im">${r.rows[n].mo?nf(r.rows[n].mo):''}</td><td>${esc(x.l)}</td><td>${esc(x.w)}</td><td>${esc(x.n)}</td>${TY?`<td>${x.mo?esc(x.mt||''):''}</td>`:''}<td class="im">${nf(r.rows[n].ar)}</td></tr>`).join('')}
-<tr class="tt"><td class="im">${r.MO?nf(r.MO):''}</td><td colspan="2">Total</td><td>${nf(r.N)}</td>${TY?'<td></td>':''}<td class="im">${nf(r.A)}</td></tr></table>`;
+const t1=`<table><tr>${TY?'<th class="im">Molding</th>':''}<th>Length</th><th>Breadth</th><th>Nos</th>${TY?'<th>Type</th>':''}<th class="im">Area</th></tr>
+${c.rows.map((x,n)=>`<tr class="dr">${TY?`<td class="im">${r.rows[n].mo?nf(r.rows[n].mo):''}</td>`:''}<td>${esc(x.l)}</td><td>${esc(x.w)}</td><td>${esc(x.n)}</td>${TY?`<td>${x.mo?esc(cap(x.mt||'')):''}</td>`:''}<td class="im">${nf(r.rows[n].ar)}</td></tr>`).join('')}
+<tr class="tt">${TY?`<td class="im">${r.MO?nf(r.MO):''}</td><td colspan="2">Total</td>`:'<td colspan="2">Total</td>'}<td>${nf(r.N)}</td>${TY?'<td></td>':''}<td class="im">${nf(r.A)}</td></tr></table>`;
 const t2=`<table><tr><th style="width:36%">CONTENTS</th><th>RATE</th><th>QUANTITY</th><th>AMOUNT</th></tr>
-${r.lines.map(x=>`<tr><td class="l">${esc(x.name)}</td><td>${x.hr?nf(x.rt):''}</td><td>${nf(x.q)}</td><td>${x.hr?nf(x.am):''}</td></tr>`).join('')}
+${r.lines.map(x=>`<tr><td class="l">${esc(cap(x.name))}</td><td>${x.hr?nf(x.rt):''}</td><td>${nf(x.q)}</td><td>${x.hr?nf(x.am):''}</td></tr>`).join('')}
 ${r.fx.map(x=>`<tr><td class="l">${x.nm.toUpperCase()}</td><td>${x.h?nf(x.rt):''}</td><td>${x.h?nf(x.q):''}</td><td>${x.h?nf(x.am):''}</td></tr>`).join('')}
 ${r.hf&&Math.abs(r.adj)>0.005?`<tr><td colspan="3" class="l">ADJUSTMENT</td><td>${r.adj<0?'-':''}${nf(Math.abs(r.adj))}</td></tr>`:''}
 <tr class="tt"><td colspan="3" class="l">TOTAL</td><td>${nf(r.tot)}</td></tr><tr><td colspan="3" class="l">PAID</td><td>${nf(+c.paid||0)}</td></tr><tr class="tt"><td colspan="3" class="l">BALANCE</td><td>${nf(r.bal)}</td></tr></table>`;
