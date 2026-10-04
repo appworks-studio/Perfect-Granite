@@ -68,36 +68,37 @@ const f2=x=>(Math.round(x*100)/100).toLocaleString('en-IN',{minimumFractionDigit
 const bw=w=>{w=+w||0;return w>0?Math.ceil(w/3-1e-9)*3:w};
 const newRow=()=>({m:'',g:'',mo:false,l:'',w:'',n:1}),EX=['Molding','Groove','Sink cut','Vertical','Sink','Kadappa','Transport','Additional','Custom…'];
 const FX=[['Molding','mo'],['Sink cut','sc'],['Vertical','vt'],['Sink','sk'],['Kadappa','kd'],['Transport','tr'],['Groove','gr'],['Additional','ad']],has=v=>String(v==null?'':v).trim()!=='';
-function calc(c){const M={},ord=[];let A=0,N=0,MO=0,GR=0,SL=0,SB=0;
-const rows=c.rows.map(r=>{const L=bw(r.l),B=bw(r.w),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n:0,gr=+r.g||0,k=(r.m||'').trim()||'Material';if(!M[k]){M[k]={a:0,n:0};ord.push(k)}M[k].a+=ar;M[k].n+=n;A+=ar;N+=n;MO+=mo;GR+=gr;SL+=+r.l||0;SB+=+r.w||0;return{L,B,ar,mo,gr}});
-const lines=ord.map(k=>{const p=(c.pr||{})[k]||{},q=p.per=='piece'?M[k].n:M[k].a,rt=+p.rate||0;return{name:k,q,rt,hr:has(p.rate),am:q*rt}});
-const fx=FX.map(([nm,k])=>{const f=(c.fx||{})[k]||{},h=has(f.rate),q=k=='mo'?MO:k=='gr'?GR:(has(f.qty)?+f.qty:1),rt=+f.rate||0;return{nm,k,h,q,rt,am:h?q*rt:0}});
+const matOf=c=>c.mat!=null?c.mat:((c.rows[0]&&c.rows[0].m)||'');
+function calc(c){const nm=(matOf(c)||'').trim()||'Material';let A=0,N=0,MO=0;
+const rows=c.rows.map(r=>{const L=bw(r.l),B=bw(r.w),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n:0;A+=ar;N+=n;MO+=mo;return{L,B,ar,mo}});
+const p=(c.pr||{})._||(c.pr||{})[nm]||{},q=p.per=='piece'?N:A,rt=+p.rate||0,lines=[{name:nm,q,rt,hr:has(p.rate),am:q*rt}];
+const fx=FX.map(([n2,k])=>{const f=(c.fx||{})[k]||{},h=has(f.rate),q2=k=='mo'?MO:(has(f.qty)?+f.qty:1),r2=+f.rate||0;return{nm:n2,k,h,q:q2,rt:r2,am:h?q2*r2:0}});
 const sum=[...lines,...fx].reduce((s,x)=>s+x.am,0),hf=has(c.fin),tot=hf?(+c.fin||0):sum;
-return{rows,ord,lines,fx,A,N,MO,GR,SL,SB,sum,hf,adj:tot-sum,tot,bal:tot-(+c.paid||0)}}
+return{rows,ord:[nm],lines,fx,A,N,MO,sum,hf,adj:tot-sum,tot,bal:tot-(+c.paid||0)}}
 function home(){flush();cur=null;$('app').innerHTML=`<h1>Granite Bill <button class="s" onclick="biz()">Settings</button></h1><button style="width:100%" onclick="nw()">+ New Bill</button>
 <input id="q" placeholder="Search name or customer" oninput="lst()" style="margin:12px 0"><div class="card" id="ls"></div><div class="row"><button class="s" onclick="logout()">Logout</button></div><div class="mu" style="margin-top:8px">${esc(U&&U.email||'')} · ${navigator.onLine?'Online, saved to cloud':'Offline, will sync when online'}</div>`;lst()}
 function lst(){const q=($('q').value||'').toLowerCase();const L=S.calcs.filter(c=>(c.name+c.customer).toLowerCase().includes(q)).sort((a,b)=>b.updated-a.updated);
 $('ls').innerHTML=L.length?L.map(c=>`<div class="li" onclick="op('${c.id}')"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')} · Updated ${fd(c.updated)}</div></div><b>₹${f2(calc(c).tot)}</b></div>`).join(''):'<div class="mu">No bills yet.</div>'}
-function nw(){S.n++;const t=Date.now();cur={id:'c'+t,name:'Bill #'+String(S.n).padStart(3,'0'),created:t,updated:t,customer:'',mob:'',rows:[newRow()],pr:{},fx:{},paid:''};S.calcs.push(cur);save();ed()}
+function nw(){S.n++;const t=Date.now();cur={id:'c'+t,name:'Bill #'+String(S.n).padStart(3,'0'),created:t,updated:t,customer:'',mob:'',mat:'',rows:[newRow()],pr:{},fx:{},paid:''};S.calcs.push(cur);save();ed()}
 function op(id){cur=S.calcs.find(c=>c.id==id);ed()}
 function ed(){const c=cur;
-$('ml').innerHTML=[...new Set(S.calcs.flatMap(x=>x.rows.map(r=>(r.m||'').trim())).filter(Boolean))].map(m=>`<option value="${esc(m)}">`).join('');
+$('ml').innerHTML=[...new Set(S.calcs.map(x=>(matOf(x)||'').trim()).filter(Boolean))].map(m=>`<option value="${esc(m)}">`).join('');
 $('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><button onclick="bill()">Bill / Print</button></h1>
 <div class="card"><label>Bill name</label><input data-k="name" value="${esc(c.name)}"><div class="mu" id="dt"></div>
+<div style="margin-top:8px"><label>Material (one material per bill)</label><input list="ml" data-k="mat" value="${esc(matOf(c))}" placeholder="e.g. White"></div>
 <div class="g" style="margin-top:8px"><div><label>Customer name</label><input data-k="customer" value="${esc(c.customer)}"></div><div><label>Mobile</label><input data-k="mob" inputmode="tel" value="${esc(c.mob)}"></div></div>
 <div class="mu" style="margin-top:6px">Sizes in inches. Length and breadth are billed in steps of 3 (4.25→6, 74→75).</div></div>
 <div class="card"><b>Pieces</b><div id="rs"></div><div class="row"><button class="s" onclick="ar()">+ Add piece</button></div></div>
 <div class="card"><b>Price</b><div id="pz"></div></div>
 <div class="card" id="tt"></div><button class="d" onclick="del()">Delete this bill</button>`;
 document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;touch()});rs();pricing();touch()}
-function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><label>Material</label><input list="ml" data-r="${n}" data-f="m" value="${esc(r.m)}" placeholder="e.g. White, Starblack">
-<div class="g g3" style="margin-top:6px"><div><label>Length</label><input type="number" inputmode="decimal" data-r="${n}" data-f="l" value="${r.l}"></div><div><label>Breadth</label><input type="number" inputmode="decimal" data-r="${n}" data-f="w" value="${r.w}"></div><div><label>Nos</label><input type="number" inputmode="decimal" data-r="${n}" data-f="n" value="${r.n}"></div></div>
-<div class="g" style="margin-top:6px;align-items:end"><div><label>Groove (rft, optional)</label><input type="number" inputmode="decimal" data-r="${n}" data-f="g" value="${r.g}"></div><label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);padding-bottom:9px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;touch()"> Molding</label></div>
+function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><div class="g g3"><div><label>Length</label><input type="number" inputmode="decimal" data-r="${n}" data-f="l" value="${r.l}"></div><div><label>Breadth</label><input type="number" inputmode="decimal" data-r="${n}" data-f="w" value="${r.w}"></div><div><label>Nos</label><input type="number" inputmode="decimal" data-r="${n}" data-f="n" value="${r.n}"></div></div>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);margin-top:8px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;touch()"> Molding</label>
 <div class="mu" id="ra${n}"></div>${cur.rows.length>1?`<button class="s" style="margin-top:6px" onclick="rr(${n})">Remove</button>`:''}</div>`).join('');
 document.querySelectorAll('[data-r]').forEach(e=>e.oninput=()=>{cur.rows[e.dataset.r][e.dataset.f]=e.value;touch()})}
 function pricing(){const r=calc(cur);cur._k=r.ord.join('|');
-$('pz').innerHTML=r.ord.map((k,i)=>{const p=(cur.pr||{})[k]||{};return`<div class="it"><b>${esc(k)}</b><div class="g g3"><div><label>Qty</label><div class="v" id="pq${i}"></div></div><div><label>Rate ₹</label><input type="number" inputmode="decimal" data-p="${esc(k)}" data-f="rate" value="${p.rate||''}"></div><div><label>Per</label><select data-p="${esc(k)}" data-f="per"><option value="sqft" ${p.per!='piece'?'selected':''}>sq ft</option><option value="piece" ${p.per=='piece'?'selected':''}>piece</option></select></div></div><div class="tot"><span class="mu">Amount</span><b id="pa${i}"></b></div></div>`}).join('')+
-FX.map(([nm,k])=>{const f=(cur.fx||{})[k]||{},au=k=='mo'||k=='gr';return`<div class="it"><b>${nm.toUpperCase()}</b><div class="g"><div><label>${au?'Qty (auto, rft)':'Qty (blank = 1)'}</label>${au?`<div class="v" id="fq${k}"></div>`:`<input type="number" inputmode="decimal" data-x="${k}" data-f="qty" value="${f.qty||''}">`}</div><div><label>Rate ₹</label><input type="number" inputmode="decimal" data-x="${k}" data-f="rate" value="${f.rate||''}"></div></div><div class="tot"><span class="mu">Amount</span><b id="fa${k}"></b></div></div>`}).join('')+
+$('pz').innerHTML=r.ord.map((k,i)=>{const p=(cur.pr||{})._||(cur.pr||{})[k]||{};return`<div class="it"><b>${esc(k)}</b><div class="g g3"><div><label>Qty</label><div class="v" id="pq${i}"></div></div><div><label>Rate ₹</label><input type="number" inputmode="decimal" data-p="_" data-f="rate" value="${p.rate||''}"></div><div><label>Per</label><select data-p="_" data-f="per"><option value="sqft" ${p.per!='piece'?'selected':''}>sq ft</option><option value="piece" ${p.per=='piece'?'selected':''}>piece</option></select></div></div><div class="tot"><span class="mu">Amount</span><b id="pa${i}"></b></div></div>`}).join('')+
+FX.map(([nm,k])=>{const f=(cur.fx||{})[k]||{},au=k=='mo';return`<div class="it"><b>${nm.toUpperCase()}</b><div class="g"><div><label>${au?'Qty (auto, rft)':'Qty (blank = 1)'}</label>${au?`<div class="v" id="fq${k}"></div>`:`<input type="number" inputmode="decimal" data-x="${k}" data-f="qty" value="${f.qty||''}">`}</div><div><label>Rate ₹</label><input type="number" inputmode="decimal" data-x="${k}" data-f="rate" value="${f.rate||''}"></div></div><div class="tot"><span class="mu">Amount</span><b id="fa${k}"></b></div></div>`}).join('')+
 `<div class="it"><label>Final price ₹ (optional: type to set your own total)</label><input type="number" inputmode="decimal" data-k="fin" value="${cur.fin||''}"><div class="mu" id="fh"></div></div><div class="it"><label>Paid ₹</label><input type="number" inputmode="decimal" data-k="paid" value="${cur.paid||''}"></div>`;
 document.querySelectorAll('#pz [data-p]').forEach(e=>e.oninput=()=>{const k=e.dataset.p;cur.pr=cur.pr||{};(cur.pr[k]=cur.pr[k]||{})[e.dataset.f]=e.value;touch()});
 document.querySelectorAll('#pz [data-x]').forEach(e=>e.oninput=()=>{const k=e.dataset.x;cur.fx=cur.fx||{};(cur.fx[k]=cur.fx[k]||{})[e.dataset.f]=e.value;touch()});
@@ -112,12 +113,12 @@ r.rows.forEach((x,n)=>{const e=$('ra'+n);if(e)e.textContent=`Billed ${x.L} × ${
 $('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / ${f2(r.A)} sq ft</b></div>${r.MO?`<div class="tot"><span>Total molding</span><b>${f2(r.MO)} rft</b></div>`:''}${r.hf&&Math.abs(r.adj)>0.005?`<div class="tot"><span>Calculated</span><span>₹${f2(r.sum)}</span></div><div class="tot"><span>Adjustment</span><span>${r.adj<0?'-':'+'}₹${f2(Math.abs(r.adj))}</span></div>`:''}<div class="tot gt"><span>TOTAL</span><span>₹${f2(r.tot)}</span></div><div class="tot"><span>Paid</span><span>₹${f2(+cur.paid||0)}</span></div><div class="tot"><b>BALANCE</b><b>₹${f2(r.bal)}</b></div>`}
 function del(){if(confirm('Delete this bill?')){const id=cur.id;S.calcs=S.calcs.filter(c=>c!==cur);cur=null;if(U)db.collection('users').doc(U.uid).collection('bills').doc(id).delete().catch(er);home()}}
 const nf=x=>String(Math.round(x*100)/100),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],fdn=t=>{const d=new Date(t);return d.getDate()+'-'+MN[d.getMonth()]+'-'+d.getFullYear()};
-function bill(){const c=cur,r=calc(c),b=S.biz,G=r.GR>0,sep=S.sp=='sep',mats=[...new Set(c.rows.map(x=>(x.m||'').trim()).filter(Boolean))].join(', ');
+function bill(){const c=cur,r=calc(c),b=S.biz,sep=S.sp=='sep',mats=matOf(c);
 const head=`<div class="ti">${esc(b.name)}</div><div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div><div class="tg">${esc(b.addr)}</div><div class="nm"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div><div class="mt">Material: &nbsp; ${esc(mats)}</div>`;
 const small=`<div class="ti" style="font-size:22px">${esc(b.name)}</div><div class="nm" style="padding-bottom:8px"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Date: &nbsp; ${fdn(c.created)}</span></div>`;
-const t1=`<table><tr><th style="width:11%">S.No.</th><th>Molding</th>${G?'<th>Groove</th>':''}<th>length</th><th>breadth</th><th>nos</th><th>area</th></tr>
-${c.rows.map((x,n)=>`<tr class="dr"><td>${n+1}</td><td>${r.rows[n].mo?nf(r.rows[n].mo):''}</td>${G?`<td>${r.rows[n].gr?nf(r.rows[n].gr):''}</td>`:''}<td>${esc(x.l)}</td><td>${esc(x.w)}</td><td>${esc(x.n)}</td><td>${nf(r.rows[n].ar)}</td></tr>`).join('')}
-<tr class="tt"><td>Total</td><td>${r.MO?nf(r.MO):''}</td>${G?`<td>${nf(r.GR)}</td>`:''}<td>${nf(r.SL)}</td><td>${nf(r.SB)}</td><td>${nf(r.N)}</td><td>${nf(r.A)}</td></tr></table>`;
+const t1=`<table><tr><th>Molding</th><th>length</th><th>breadth</th><th>nos</th><th>area</th></tr>
+${c.rows.map((x,n)=>`<tr class="dr"><td>${r.rows[n].mo?nf(r.rows[n].mo):''}</td><td>${esc(x.l)}</td><td>${esc(x.w)}</td><td>${esc(x.n)}</td><td>${nf(r.rows[n].ar)}</td></tr>`).join('')}
+<tr class="tt"><td>${r.MO?nf(r.MO):''}</td><td colspan="2">Total</td><td>${nf(r.N)}</td><td>${nf(r.A)}</td></tr></table>`;
 const t2=`<table><tr><th style="width:36%">CONTENTS</th><th>RATE</th><th>QUANTITY</th><th>AMOUNT</th></tr>
 ${r.lines.map(x=>`<tr><td class="l">${esc(x.name)}</td><td>${x.hr?nf(x.rt):''}</td><td>${nf(x.q)}</td><td>${x.hr?nf(x.am):''}</td></tr>`).join('')}
 ${r.fx.map(x=>`<tr><td class="l">${x.nm.toUpperCase()}</td><td>${x.h?nf(x.rt):''}</td><td>${x.h?nf(x.q):''}</td><td>${x.h?nf(x.am):''}</td></tr>`).join('')}
