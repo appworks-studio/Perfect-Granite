@@ -70,6 +70,7 @@ const stepOf=c=>c.kind=='kadappa'?6:3;
 const newRow=()=>({m:'',g:'',mo:false,mt:'',l:'',w:'',n:0}),EX=['Molding','Groove','Sink cut','Vertical','Sink','Kadappa','Transport','Additional','Custom…'];
 const FX=[['Molding','mo'],['Sink cut','sc'],['Vertical','vt'],['Sink','sk'],['Kadappa','kd'],['Transport','tr'],['Groove','gr'],['Additional','ad']],has=v=>String(v==null?'':v).trim()!=='';
 const MTY=['Cm','Dp','Pata','Fr','Hr'],cap=s=>String(s==null?'':s).replace(/(^|[\s+\/-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
+const autoName=c=>String(c.num).padStart(2,'0')+(c.customer&&c.customer.trim()?'_'+cap(c.customer.trim()):'');
 const matOf=c=>c.mat!=null?c.mat:((c.rows[0]&&c.rows[0].m)||'');
 function calc(c){const nm=(matOf(c)||'').trim()||'Material';let A=0,N=0,MO=0;
 const st=stepOf(c);const rows=c.rows.map(r=>{const L=bw(r.l,st),B=bw(r.w,st),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n*(String(r.mt||'').includes('+')?2:1):0;A+=ar;N+=n;MO+=mo;return{L,B,ar,mo}});
@@ -81,7 +82,7 @@ function home(){flush();cur=null;$('app').innerHTML=`<h1>Granite Bill <button cl
 <input id="q" placeholder="Search name or customer" oninput="lst()" style="margin:12px 0"><div class="card" id="ls"></div><div class="row"><button class="s" onclick="logout()">Logout</button></div><div class="mu" style="margin-top:8px">${esc(U&&U.email||'')} · ${navigator.onLine?'Online, saved to cloud':'Offline, will sync when online'}</div>`;lst()}
 function lst(){const q=($('q').value||'').toLowerCase();const L=S.calcs.filter(c=>(c.name+c.customer).toLowerCase().includes(q)).sort((a,b)=>b.updated-a.updated);
 $('ls').innerHTML=L.length?L.map(c=>`<div class="li" onclick="op('${c.id}')"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')} · Updated ${fd(c.updated)}</div></div><b>₹${f2(calc(c).tot)}</b></div>`).join(''):'<div class="mu">No bills yet.</div>'}
-function nw(){S.n++;const t=Date.now();cur={id:'c'+t,name:'Bill #'+String(S.n).padStart(3,'0'),created:t,updated:t,customer:'',mob:'',mat:'',kind:'marble',rows:[newRow()],pr:{},fx:{},paid:''};S.calcs.push(cur);save();ed()}
+function nw(){S.n++;const t=Date.now();cur={id:'c'+t,num:S.n,auto:true,name:String(S.n).padStart(2,'0'),created:t,updated:t,customer:'',mob:'',mat:'',kind:'marble',rows:[newRow()],pr:{},fx:{},paid:''};S.calcs.push(cur);save();ed()}
 function op(id){cur=S.calcs.find(c=>c.id==id);ed()}
 function ed(){const c=cur;
 $('ml').innerHTML=[...new Set(S.calcs.map(x=>(matOf(x)||'').trim()).filter(Boolean))].map(m=>`<option value="${esc(m)}">`).join('');
@@ -93,7 +94,7 @@ $('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><but
 <div class="card"><b>Pieces</b><div id="rs"></div><div class="row"><button class="s" onclick="ar()">+ Add piece</button></div></div>
 <div class="card"><b>Price</b><div id="pz"></div></div>
 <div class="card" id="tt"></div><button class="d" onclick="del()">Delete this bill</button>`;
-document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;if(e.dataset.k=='kind'){c.mat=e.value=='kadappa'?'Kadappa':'';const m=document.querySelector('[data-k=mat]');if(m)m.value=c.mat}touch()});rs();pricing();touch()}
+document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;if(e.dataset.k=='kind'){c.mat=e.value=='kadappa'?'Kadappa':'';const m=document.querySelector('[data-k=mat]');if(m)m.value=c.mat}if(e.dataset.k=='customer'&&c.auto!==false&&c.num!=null){c.name=autoName(c);const nm=document.querySelector('[data-k=name]');if(nm)nm.value=c.name}if(e.dataset.k=='name')c.auto=false;touch()});rs();pricing();touch()}
 function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><div class="g g3"><div><label>Length</label><input type="number" inputmode="decimal" data-r="${n}" data-f="l" value="${r.l}"></div><div><label>Breadth</label><input type="number" inputmode="decimal" data-r="${n}" data-f="w" value="${r.w}"></div><div><label>Nos</label><input type="number" inputmode="decimal" data-r="${n}" data-f="n" value="${r.n}" onfocus="this.select()"></div></div>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);margin-top:8px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;rs();touch()"> Molding</label>
 ${r.mo?`<select data-r="${n}" data-f="mt" style="margin-top:6px"><option value="">Select Molding Type</option><optgroup label="Single Side">${MTY.map(t=>`<option ${(r.mt||'').toLowerCase()==t.toLowerCase()?'selected':''}>${t}</option>`).join('')}</optgroup><optgroup label="Both Sides (Double)">${MTY.map(t=>`<option ${(r.mt||'').toLowerCase()==(t+'+'+t).toLowerCase()?'selected':''}>${t}+${t}</option>`).join('')}</optgroup></select>`:''}
