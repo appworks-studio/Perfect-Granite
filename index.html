@@ -27,7 +27,7 @@ button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}
 .gt{font-size:19px;font-weight:700;border-top:2px solid var(--tx);margin-top:6px;padding-top:6px}
 .sc{overflow-x:auto}
 #bill{background:#fff;color:#000;font:14px/1.35 Georgia,'Times New Roman',serif}
-#bill .pg{border:1px solid #000;padding:22px 20px;display:flex;flex-direction:column}#bill .pg+.pg{margin-top:14px}#bill .l{text-align:left;padding-left:8px}
+#bill .pg{border:1px solid #000;padding:22px 20px;display:flex;flex-direction:column}#bill .pg+.pg{margin-top:14px}#bill .l{text-align:left;padding-left:8px}#bill .im{font-style:italic}
 #bill .ti{text-align:center;font-size:27px;font-weight:700;margin-bottom:12px}
 #bill .top{display:flex;justify-content:space-between;align-items:center;font-size:15px}
 #bill .dt{border:1px solid #000;width:46%;padding:2px 8px;display:flex;justify-content:space-between;font-weight:700}
@@ -71,7 +71,7 @@ const FX=[['Molding','mo'],['Sink cut','sc'],['Vertical','vt'],['Sink','sk'],['K
 const MTY=['cm','Dp','pata','fr','hr'];
 const matOf=c=>c.mat!=null?c.mat:((c.rows[0]&&c.rows[0].m)||'');
 function calc(c){const nm=(matOf(c)||'').trim()||'Material';let A=0,N=0,MO=0;
-const rows=c.rows.map(r=>{const L=bw(r.l),B=bw(r.w),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n:0;A+=ar;N+=n;MO+=mo;return{L,B,ar,mo}});
+const rows=c.rows.map(r=>{const L=bw(r.l),B=bw(r.w),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n*(String(r.mt||'').includes('+')?2:1):0;A+=ar;N+=n;MO+=mo;return{L,B,ar,mo}});
 const p=(c.pr||{})._||(c.pr||{})[nm]||{},q=p.per=='piece'?N:A,rt=+p.rate||0,lines=[{name:nm,q,rt,hr:has(p.rate),am:q*rt}];
 const fx=FX.map(([n2,k])=>{const f=(c.fx||{})[k]||{},h=has(f.rate),q2=k=='mo'?MO:(has(f.qty)?+f.qty:1),r2=+f.rate||0;return{nm:n2,k,h,q:q2,rt:r2,am:h?q2*r2:0}});
 const sum=[...lines,...fx].reduce((s,x)=>s+x.am,0),hf=has(c.fin),tot=hf?(+c.fin||0):sum;
@@ -95,7 +95,7 @@ $('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><but
 document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;touch()});rs();pricing();touch()}
 function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><div class="g g3"><div><label>Length</label><input type="number" inputmode="decimal" data-r="${n}" data-f="l" value="${r.l}"></div><div><label>Breadth</label><input type="number" inputmode="decimal" data-r="${n}" data-f="w" value="${r.w}"></div><div><label>Nos</label><input type="number" inputmode="decimal" data-r="${n}" data-f="n" value="${r.n}" onfocus="this.select()"></div></div>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);margin-top:8px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;rs();touch()"> Molding</label>
-${r.mo?`<select data-r="${n}" data-f="mt" style="margin-top:6px"><option value="">Select molding type</option>${MTY.map(t=>`<option ${r.mt==t?'selected':''}>${t}</option>`).join('')}</select>`:''}
+${r.mo?`<select data-r="${n}" data-f="mt" style="margin-top:6px"><option value="">Select molding type</option><optgroup label="Single side">${MTY.map(t=>`<option ${r.mt==t?'selected':''}>${t}</option>`).join('')}</optgroup><optgroup label="Both sides (double)">${MTY.map(t=>`<option ${r.mt==t+'+'+t?'selected':''}>${t}+${t}</option>`).join('')}</optgroup></select>`:''}
 <div class="mu" id="ra${n}"></div>${cur.rows.length>1?`<button class="s" style="margin-top:6px" onclick="rr(${n})">Remove</button>`:''}</div>`).join('');
 document.querySelectorAll('[data-r]').forEach(e=>e.oninput=()=>{cur.rows[e.dataset.r][e.dataset.f]=e.value;touch()})}
 function pricing(){const r=calc(cur);cur._k=r.ord.join('|');
@@ -119,9 +119,9 @@ function bill(){const c=cur,r=calc(c),b=S.biz,sep=S.sp=='sep',mats=matOf(c);
 const head=`<div class="ti">${esc(b.name)}</div><div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div><div class="tg">${esc(b.addr)}</div><div class="nm"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div><div class="mt">Material: &nbsp; ${esc(mats)}</div>`;
 const small=`<div class="ti" style="font-size:22px">${esc(b.name)}</div><div class="nm" style="padding-bottom:8px"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Date: &nbsp; ${fdn(c.created)}</span></div>`;
 const TY=c.rows.some(x=>x.mo);
-const t1=`<table><tr><th>Molding</th><th>length</th><th>breadth</th><th>nos</th>${TY?'<th>type</th>':''}<th>area</th></tr>
-${c.rows.map((x,n)=>`<tr class="dr"><td>${r.rows[n].mo?nf(r.rows[n].mo):''}</td><td>${esc(x.l)}</td><td>${esc(x.w)}</td><td>${esc(x.n)}</td>${TY?`<td>${x.mo?esc(x.mt||''):''}</td>`:''}<td>${nf(r.rows[n].ar)}</td></tr>`).join('')}
-<tr class="tt"><td>${r.MO?nf(r.MO):''}</td><td colspan="2">Total</td><td>${nf(r.N)}</td>${TY?'<td></td>':''}<td>${nf(r.A)}</td></tr></table>`;
+const t1=`<table><tr><th class="im">Molding</th><th>length</th><th>breadth</th><th>nos</th>${TY?'<th>type</th>':''}<th class="im">area</th></tr>
+${c.rows.map((x,n)=>`<tr class="dr"><td class="im">${r.rows[n].mo?nf(r.rows[n].mo):''}</td><td>${esc(x.l)}</td><td>${esc(x.w)}</td><td>${esc(x.n)}</td>${TY?`<td>${x.mo?esc(x.mt||''):''}</td>`:''}<td class="im">${nf(r.rows[n].ar)}</td></tr>`).join('')}
+<tr class="tt"><td class="im">${r.MO?nf(r.MO):''}</td><td colspan="2">Total</td><td>${nf(r.N)}</td>${TY?'<td></td>':''}<td class="im">${nf(r.A)}</td></tr></table>`;
 const t2=`<table><tr><th style="width:36%">CONTENTS</th><th>RATE</th><th>QUANTITY</th><th>AMOUNT</th></tr>
 ${r.lines.map(x=>`<tr><td class="l">${esc(x.name)}</td><td>${x.hr?nf(x.rt):''}</td><td>${nf(x.q)}</td><td>${x.hr?nf(x.am):''}</td></tr>`).join('')}
 ${r.fx.map(x=>`<tr><td class="l">${x.nm.toUpperCase()}</td><td>${x.h?nf(x.rt):''}</td><td>${x.h?nf(x.q):''}</td><td>${x.h?nf(x.am):''}</td></tr>`).join('')}
