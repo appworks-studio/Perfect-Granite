@@ -26,7 +26,8 @@ button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}
 .mu{color:var(--mu);font-size:13px}.tot{display:flex;justify-content:space-between;padding:3px 0}.v{padding:9px 0;font-weight:600}
 .gt{font-size:19px;font-weight:700;border-top:2px solid var(--tx);margin-top:6px;padding-top:6px}
 .sc{overflow-x:auto}
-#bill{background:#fff;color:#000;padding:22px 20px;font:14px/1.35 Georgia,'Times New Roman',serif;border:1px solid #000;display:flex;flex-direction:column}
+#bill{background:#fff;color:#000;font:14px/1.35 Georgia,'Times New Roman',serif}
+#bill .pg{border:1px solid #000;padding:22px 20px;display:flex;flex-direction:column}#bill .pg+.pg{margin-top:14px}#bill .l{text-align:left;padding-left:8px}
 #bill .ti{text-align:center;font-size:27px;font-weight:700;margin-bottom:12px}
 #bill .top{display:flex;justify-content:space-between;align-items:center;font-size:15px}
 #bill .dt{border:1px solid #000;width:46%;padding:2px 8px;display:flex;justify-content:space-between;font-weight:700}
@@ -39,7 +40,7 @@ button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}
 #bill .sg{break-inside:avoid;page-break-inside:avoid;width:max-content;margin:auto 0 0 auto;padding-top:26px;font-size:15px}
 a.bt{display:inline-block;padding:10px 14px;border-radius:8px;background:var(--ac);color:#fff;font-weight:600;text-decoration:none}
 .md{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;z-index:9;overflow:auto;padding:16px}.md img{width:100%;background:#fff}
-@media print{html,body{background:#fff!important}body>*:not(#app){display:none!important}.noprint{display:none!important}.w{max-width:none;padding:0;margin:0}#pw{display:block!important;overflow:visible}#bill{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media print{html,body{background:#fff!important}body>*:not(#app){display:none!important}.noprint{display:none!important}.w{max-width:none;padding:0;margin:0}#pw{display:block!important;overflow:visible}#bill{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}#bill .pg+.pg{break-before:page;margin-top:0}}
 </style><style id="pg">@page{size:A4 portrait;margin:10mm}</style></head><body>
 <div class="w" id="app"></div><div class="md" id="md"></div><datalist id="ml"></datalist>
 <script>
@@ -51,10 +52,10 @@ const er=e=>{if(e&&e.code=='permission-denied'){alert('Access is not enabled for
 const save=()=>{clearTimeout(tmr);tmr=setTimeout(flush,700)};
 function flush(){clearTimeout(tmr);if(!U)return;const d=db.collection('users').doc(U.uid);
 if(cur){const o=JSON.parse(JSON.stringify(cur));delete o._k;d.collection('bills').doc(cur.id).set(o).catch(er)}
-d.collection('meta').doc('s').set({biz:S.biz,n:S.n,ps:S.ps||'A4',pf:S.pf||'n'}).catch(er)}
+d.collection('meta').doc('s').set({biz:S.biz,n:S.n,ps:S.ps||'A4',pf:S.pf||'n',sp:S.sp||'same'}).catch(er)}
 function listen(){const d=db.collection('users').doc(U.uid);
 unsubs=[d.collection('bills').onSnapshot(sn=>{S.calcs=sn.docs.map(x=>{const o=x.data();return cur&&cur.id==o.id?cur:o});if(cur&&!S.calcs.includes(cur))S.calcs.push(cur);if(!cur&&$('ls'))lst()},er),
-d.collection('meta').doc('s').onSnapshot(x=>{if(x.exists){const o=x.data();if(o.biz&&o.biz.name)S.biz=o.biz;S.n=Math.max(S.n,o.n||0);if(o.ps)S.ps=o.ps;if(o.pf)S.pf=o.pf}},er)]}
+d.collection('meta').doc('s').onSnapshot(x=>{if(x.exists){const o=x.data();if(o.biz&&o.biz.name)S.biz=o.biz;S.n=Math.max(S.n,o.n||0);if(o.ps)S.ps=o.ps;if(o.pf)S.pf=o.pf;if(o.sp)S.sp=o.sp}},er)]}
 auth.onAuthStateChanged(u=>{unsubs.forEach(f=>f());unsubs=[];U=u;cur=null;S.calcs=[];if(u){listen();home()}else loginView()});
 function loginView(){$('app').innerHTML=`<div class="card" style="margin-top:12vh"><h1>Granite Bill</h1><label>Email</label><input id="em" type="email" autocomplete="username"><label style="margin-top:8px">Password</label><input id="pw2" type="password" autocomplete="current-password"><div class="mu" id="le" style="color:#b3261e;margin:6px 0"></div><button style="width:100%" onclick="login()">Login</button><p class="mu">Access is given by the admin only.</p></div>`}
 function login(){$('le').textContent='';auth.signInWithEmailAndPassword($('em').value.trim(),$('pw2').value).catch(e=>{$('le').textContent=e.code=='auth/network-request-failed'?'No internet. Connect once to log in.':'Wrong email or password, or access removed.'})}
@@ -66,16 +67,18 @@ const fdd=t=>new Date(t).toLocaleDateString('en-GB',{day:'2-digit',month:'short'
 const f2=x=>(Math.round(x*100)/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 const bw=w=>{w=+w||0;return w>0?Math.ceil(w/3-1e-9)*3:w};
 const newRow=()=>({m:'',g:'',mo:false,l:'',w:'',n:1}),EX=['Molding','Groove','Sink cut','Vertical','Sink','Kadappa','Transport','Additional','Custom…'];
-function calc(c){const M={},ord=[];let A=0,N=0,MO=0,GR=0;
-const rows=c.rows.map(r=>{const L=bw(r.l),B=bw(r.w),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n:0,gr=+r.g||0,k=(r.m||'').trim()||'Material';if(!M[k]){M[k]={a:0,n:0};ord.push(k)}M[k].a+=ar;M[k].n+=n;A+=ar;N+=n;MO+=mo;GR+=gr;return{L,B,ar,mo,gr}});
-const lines=ord.map(k=>{const p=c.pr[k]||{},q=p.per=='piece'?M[k].n:M[k].a,rt=+p.rate||0;return{name:k,q,rt,am:q*rt}});
-const ex=c.ex.map(e=>{const q=e.name=='Molding'?MO:e.name=='Groove'?GR:(+e.qty||0),rt=+e.rate||0;return{name:e.name,q,rt,am:q*rt}});
-const sum=0,hf=false,tot=+c.fin||0;return{rows,ord,lines,ex,A,N,MO,GR,sum,hf,adj:tot-sum,tot,bal:tot-(+c.paid||0)}}
+const FX=[['Molding','mo'],['Sink cut','sc'],['Vertical','vt'],['Sink','sk'],['Kadappa','kd'],['Transport','tr'],['Groove','gr'],['Additional','ad']],has=v=>String(v==null?'':v).trim()!=='';
+function calc(c){const M={},ord=[];let A=0,N=0,MO=0,GR=0,SL=0,SB=0;
+const rows=c.rows.map(r=>{const L=bw(r.l),B=bw(r.w),n=+r.n||0,ar=L*B*n/144,mo=r.mo?L/12*n:0,gr=+r.g||0,k=(r.m||'').trim()||'Material';if(!M[k]){M[k]={a:0,n:0};ord.push(k)}M[k].a+=ar;M[k].n+=n;A+=ar;N+=n;MO+=mo;GR+=gr;SL+=+r.l||0;SB+=+r.w||0;return{L,B,ar,mo,gr}});
+const lines=ord.map(k=>{const p=(c.pr||{})[k]||{},q=p.per=='piece'?M[k].n:M[k].a,rt=+p.rate||0;return{name:k,q,rt,hr:has(p.rate),am:q*rt}});
+const fx=FX.map(([nm,k])=>{const f=(c.fx||{})[k]||{},h=has(f.rate),q=k=='mo'?MO:k=='gr'?GR:(has(f.qty)?+f.qty:1),rt=+f.rate||0;return{nm,k,h,q,rt,am:h?q*rt:0}});
+const sum=[...lines,...fx].reduce((s,x)=>s+x.am,0),hf=has(c.fin),tot=hf?(+c.fin||0):sum;
+return{rows,ord,lines,fx,A,N,MO,GR,SL,SB,sum,hf,adj:tot-sum,tot,bal:tot-(+c.paid||0)}}
 function home(){flush();cur=null;$('app').innerHTML=`<h1>Granite Bill <button class="s" onclick="biz()">Settings</button></h1><button style="width:100%" onclick="nw()">+ New Bill</button>
 <input id="q" placeholder="Search name or customer" oninput="lst()" style="margin:12px 0"><div class="card" id="ls"></div><div class="row"><button class="s" onclick="logout()">Logout</button></div><div class="mu" style="margin-top:8px">${esc(U&&U.email||'')} · ${navigator.onLine?'Online, saved to cloud':'Offline, will sync when online'}</div>`;lst()}
 function lst(){const q=($('q').value||'').toLowerCase();const L=S.calcs.filter(c=>(c.name+c.customer).toLowerCase().includes(q)).sort((a,b)=>b.updated-a.updated);
 $('ls').innerHTML=L.length?L.map(c=>`<div class="li" onclick="op('${c.id}')"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')} · Updated ${fd(c.updated)}</div></div><b>₹${f2(calc(c).tot)}</b></div>`).join(''):'<div class="mu">No bills yet.</div>'}
-function nw(){S.n++;const t=Date.now();cur={id:'c'+t,name:'Bill #'+String(S.n).padStart(3,'0'),created:t,updated:t,customer:'',mob:'',rows:[newRow()],pr:{},ex:[],paid:''};S.calcs.push(cur);save();ed()}
+function nw(){S.n++;const t=Date.now();cur={id:'c'+t,name:'Bill #'+String(S.n).padStart(3,'0'),created:t,updated:t,customer:'',mob:'',rows:[newRow()],pr:{},fx:{},paid:''};S.calcs.push(cur);save();ed()}
 function op(id){cur=S.calcs.find(c=>c.id==id);ed()}
 function ed(){const c=cur;
 $('ml').innerHTML=[...new Set(S.calcs.flatMap(x=>x.rows.map(r=>(r.m||'').trim())).filter(Boolean))].map(m=>`<option value="${esc(m)}">`).join('');
@@ -92,36 +95,46 @@ function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><label>Mate
 <div class="g" style="margin-top:6px;align-items:end"><div><label>Groove (rft, optional)</label><input type="number" inputmode="decimal" data-r="${n}" data-f="g" value="${r.g}"></div><label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);padding-bottom:9px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;touch()"> Molding</label></div>
 <div class="mu" id="ra${n}"></div>${cur.rows.length>1?`<button class="s" style="margin-top:6px" onclick="rr(${n})">Remove</button>`:''}</div>`).join('');
 document.querySelectorAll('[data-r]').forEach(e=>e.oninput=()=>{cur.rows[e.dataset.r][e.dataset.f]=e.value;touch()})}
-function pricing(){$('pz').innerHTML=`<label>Final price ₹</label><input type="number" inputmode="decimal" data-k="fin" value="${cur.fin||''}"><div class="it"><label>Paid ₹</label><input type="number" inputmode="decimal" data-k="paid" value="${cur.paid||''}"></div>`;
+function pricing(){const r=calc(cur);cur._k=r.ord.join('|');
+$('pz').innerHTML=r.ord.map((k,i)=>{const p=(cur.pr||{})[k]||{};return`<div class="it"><b>${esc(k)}</b><div class="g g3"><div><label>Qty</label><div class="v" id="pq${i}"></div></div><div><label>Rate ₹</label><input type="number" inputmode="decimal" data-p="${esc(k)}" data-f="rate" value="${p.rate||''}"></div><div><label>Per</label><select data-p="${esc(k)}" data-f="per"><option value="sqft" ${p.per!='piece'?'selected':''}>sq ft</option><option value="piece" ${p.per=='piece'?'selected':''}>piece</option></select></div></div><div class="tot"><span class="mu">Amount</span><b id="pa${i}"></b></div></div>`}).join('')+
+FX.map(([nm,k])=>{const f=(cur.fx||{})[k]||{},au=k=='mo'||k=='gr';return`<div class="it"><b>${nm.toUpperCase()}</b><div class="g"><div><label>${au?'Qty (auto, rft)':'Qty (blank = 1)'}</label>${au?`<div class="v" id="fq${k}"></div>`:`<input type="number" inputmode="decimal" data-x="${k}" data-f="qty" value="${f.qty||''}">`}</div><div><label>Rate ₹</label><input type="number" inputmode="decimal" data-x="${k}" data-f="rate" value="${f.rate||''}"></div></div><div class="tot"><span class="mu">Amount</span><b id="fa${k}"></b></div></div>`}).join('')+
+`<div class="it"><label>Final price ₹ (optional: type to set your own total)</label><input type="number" inputmode="decimal" data-k="fin" value="${cur.fin||''}"><div class="mu" id="fh"></div></div><div class="it"><label>Paid ₹</label><input type="number" inputmode="decimal" data-k="paid" value="${cur.paid||''}"></div>`;
+document.querySelectorAll('#pz [data-p]').forEach(e=>e.oninput=()=>{const k=e.dataset.p;cur.pr=cur.pr||{};(cur.pr[k]=cur.pr[k]||{})[e.dataset.f]=e.value;touch()});
+document.querySelectorAll('#pz [data-x]').forEach(e=>e.oninput=()=>{const k=e.dataset.x;cur.fx=cur.fx||{};(cur.fx[k]=cur.fx[k]||{})[e.dataset.f]=e.value;touch()});
 document.querySelectorAll('#pz [data-k]').forEach(e=>e.oninput=()=>{cur[e.dataset.k]=e.value;touch()})}
 const ar=()=>{cur.rows.push(newRow());rs();touch()},rr=n=>{cur.rows.splice(n,1);rs();touch()},rx=i=>{cur.ex.splice(i,1);pricing();touch()};
 function ax(){let n=$('xs').value;if(n=='Custom…'){n=(prompt('Line name')||'').trim();if(!n)return}cur.ex.push({name:n,qty:'',rate:''});pricing();touch()}
 function touch(){cur.updated=Date.now();save();const r=calc(cur);
 $('dt').textContent='Created '+fd(cur.created)+' · Last updated '+fd(cur.updated);
+if(cur._k!==r.ord.join('|'))pricing();
+r.lines.forEach((x,i)=>{const q=$('pq'+i);if(q){q.textContent=f2(x.q);$('pa'+i).textContent='₹'+f2(x.am)}});r.fx.forEach(x=>{const q=$('fq'+x.k);if(q)q.textContent=f2(x.q);const a=$('fa'+x.k);if(a)a.textContent='₹'+f2(x.am)});const fh=$('fh');if(fh)fh.textContent='Calculated total: ₹'+f2(r.sum);
 r.rows.forEach((x,n)=>{const e=$('ra'+n);if(e)e.textContent=`Billed ${x.L} × ${x.B} · Area ${f2(x.ar)} sq ft`+(x.mo?` · Molding ${f2(x.mo)} rft`:'')});
 $('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / ${f2(r.A)} sq ft</b></div>${r.MO?`<div class="tot"><span>Total molding</span><b>${f2(r.MO)} rft</b></div>`:''}${r.hf&&Math.abs(r.adj)>0.005?`<div class="tot"><span>Calculated</span><span>₹${f2(r.sum)}</span></div><div class="tot"><span>Adjustment</span><span>${r.adj<0?'-':'+'}₹${f2(Math.abs(r.adj))}</span></div>`:''}<div class="tot gt"><span>TOTAL</span><span>₹${f2(r.tot)}</span></div><div class="tot"><span>Paid</span><span>₹${f2(+cur.paid||0)}</span></div><div class="tot"><b>BALANCE</b><b>₹${f2(r.bal)}</b></div>`}
 function del(){if(confirm('Delete this bill?')){const id=cur.id;S.calcs=S.calcs.filter(c=>c!==cur);cur=null;if(U)db.collection('users').doc(U.uid).collection('bills').doc(id).delete().catch(er);home()}}
 const nf=x=>String(Math.round(x*100)/100),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],fdn=t=>{const d=new Date(t);return d.getDate()+'-'+MN[d.getMonth()]+'-'+d.getFullYear()};
-function bill(){const c=cur,r=calc(c),b=S.biz,P=[...r.lines,...r.ex].filter(x=>x.am||x.rt),G=r.GR>0,mats=[...new Set(c.rows.map(x=>(x.m||'').trim()).filter(Boolean))].join(', ');
-$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="img()">Save as Image</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select><select id="pf" style="width:auto" onchange="S.pf=this.value;save();fit()"><option value="n" ${(S.pf||'n')=='n'?'selected':''}>Fit: Normal</option><option value="s" ${S.pf=='s'?'selected':''}>Fit: Smaller</option><option value="x" ${S.pf=='x'?'selected':''}>Fit: Smallest</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
-<div class="sc" id="pw"><div id="bill"><div class="ti">${esc(b.name)}</div>
-<div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div>
-<div class="tg">${esc(b.addr)}</div>
-<div class="nm"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div>
-<div class="mt">Material: &nbsp; ${esc(mats)}</div>
-<table><tr><th style="width:11%">S.No.</th><th>Molding</th>${G?'<th>Groove</th>':''}<th>length</th><th>breadth</th><th>nos</th><th>area</th></tr>
+function bill(){const c=cur,r=calc(c),b=S.biz,G=r.GR>0,sep=S.sp=='sep',mats=[...new Set(c.rows.map(x=>(x.m||'').trim()).filter(Boolean))].join(', ');
+const head=`<div class="ti">${esc(b.name)}</div><div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div><div class="tg">${esc(b.addr)}</div><div class="nm"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div><div class="mt">Material: &nbsp; ${esc(mats)}</div>`;
+const small=`<div class="ti" style="font-size:22px">${esc(b.name)}</div><div class="nm" style="padding-bottom:8px"><span>Name: &nbsp; ${esc(c.customer||'')}</span><span>Date: &nbsp; ${fdn(c.created)}</span></div>`;
+const t1=`<table><tr><th style="width:11%">S.No.</th><th>Molding</th>${G?'<th>Groove</th>':''}<th>length</th><th>breadth</th><th>nos</th><th>area</th></tr>
 ${c.rows.map((x,n)=>`<tr class="dr"><td>${n+1}</td><td>${r.rows[n].mo?nf(r.rows[n].mo):''}</td>${G?`<td>${r.rows[n].gr?nf(r.rows[n].gr):''}</td>`:''}<td>${esc(x.l)}</td><td>${esc(x.w)}</td><td>${esc(x.n)}</td><td>${nf(r.rows[n].ar)}</td></tr>`).join('')}
-<tr class="tt"><td colspan="${G?5:4}">Total</td><td>${nf(r.N)}</td><td>${nf(r.A)}</td></tr></table>
-<table><tr><td style="text-align:left;padding-left:12px">TOTAL PRICE</td><td style="width:34%;font-weight:700">${nf(r.tot)}</td></tr><tr><td style="text-align:left;padding-left:12px">PAID</td><td>${nf(+c.paid||0)}</td></tr><tr><td style="text-align:left;padding-left:12px"><b>BALANCE</b></td><td style="font-weight:700">${nf(r.bal)}</td></tr></table>
-<div class="sg">Customer Signature: ____________________<br>Thank you for your business.</div></div></div>`;setPage();fit()}
+<tr class="tt"><td>Total</td><td>${r.MO?nf(r.MO):''}</td>${G?`<td>${nf(r.GR)}</td>`:''}<td>${nf(r.SL)}</td><td>${nf(r.SB)}</td><td>${nf(r.N)}</td><td>${nf(r.A)}</td></tr></table>`;
+const t2=`<table><tr><th style="width:36%">CONTENTS</th><th>RATE</th><th>QUANTITY</th><th>AMOUNT</th></tr>
+${r.lines.map(x=>`<tr><td class="l">${esc(x.name)}</td><td>${x.hr?nf(x.rt):''}</td><td>${nf(x.q)}</td><td>${x.hr?nf(x.am):''}</td></tr>`).join('')}
+${r.fx.map(x=>`<tr><td class="l">${x.nm.toUpperCase()}</td><td>${x.h?nf(x.rt):''}</td><td>${x.h?nf(x.q):''}</td><td>${x.h?nf(x.am):''}</td></tr>`).join('')}
+${r.hf&&Math.abs(r.adj)>0.005?`<tr><td colspan="3" class="l">ADJUSTMENT</td><td>${r.adj<0?'-':''}${nf(Math.abs(r.adj))}</td></tr>`:''}
+<tr class="tt"><td colspan="3" class="l">TOTAL</td><td>${nf(r.tot)}</td></tr><tr><td colspan="3" class="l">PAID</td><td>${nf(+c.paid||0)}</td></tr><tr class="tt"><td colspan="3" class="l">BALANCE</td><td>${nf(r.bal)}</td></tr></table>`;
+const sig=`<div class="sg">Customer Signature: ____________________<br>Thank you for your business.</div>`;
+$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="img()">Save as Image</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select><select id="pf" style="width:auto" onchange="S.pf=this.value;save();fit()"><option value="n" ${(S.pf||'n')=='n'?'selected':''}>Fit: Normal</option><option value="s" ${S.pf=='s'?'selected':''}>Fit: Smaller</option><option value="x" ${S.pf=='x'?'selected':''}>Fit: Smallest</option></select><select id="sp" style="width:auto" onchange="S.sp=this.value;save();bill()"><option value="same" ${!sep?'selected':''}>Price: Same page</option><option value="sep" ${sep?'selected':''}>Price: Separate page</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
+<div class="sc" id="pw"><div id="bill">${sep?`<div class="pg">${head}${t1}</div><div class="pg">${small}${t2}${sig}</div>`:`<div class="pg">${head}${t1}${t2}${sig}</div>`}</div></div>`;setPage();fit()}
 const PH=window.PRINT_H||{};const PS={A4:{w:714,h:PH.A4||960},A5:{w:484,h:PH.A5||650}},pp=()=>{const p=PS[S.ps||'A4'];return{w:p.w,h:Math.round(p.h*({n:1,s:.94,x:.88}[S.pf||'n']))}};
 function setPage(){$('pg').textContent='@page{size:'+(S.ps||'A4')+' portrait;margin:10mm}'}
-function unfit(){const b=$('bill'),w=$('pw');if(!b||!w)return;b.style.transform='';b.style.transformOrigin='';b.style.width=PS[S.ps||'A4'].w+'px';w.style.width='';w.style.height='';w.style.overflow=''}
-function fit(){const b=$('bill');if(!b)return;unfit();const P=pp(),T=[...b.querySelectorAll('tr.dr')];
-b.style.width=P.w+'px';b.style.minHeight='0';T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=''));
-const extra=P.h-b.offsetHeight;if(extra>0&&T.length){const per=Math.max(0,Math.min(16,Math.floor(extra*0.9/T.length/2)));T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=(3+per)+'px 6px'))}
-b.style.minHeight=P.h+'px'}
-function printFit(){const b=$('bill'),w=$('pw'),P=pp();unfit();b.querySelectorAll('tr.dr td').forEach(c=>c.style.padding='');b.style.minHeight='0';let H=b.offsetHeight;
+function unfit(){const b=$('bill'),w=$('pw');if(!b||!w)return;b.style.transform='';b.style.transformOrigin='';b.style.width=PS[S.ps||'A4'].w+'px';w.style.width='';w.style.height='';w.style.overflow='';b.querySelectorAll('.pg').forEach(x=>x.style.minHeight='')}
+function fit(){const b=$('bill');if(!b)return;unfit();const P=pp(),G=[...b.querySelectorAll('.pg')],g=G[0],T=[...b.querySelectorAll('tr.dr')];
+T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=''));g.style.minHeight='0';
+const extra=P.h-g.offsetHeight;if(extra>0&&T.length){const per=Math.max(0,Math.min(16,Math.floor(extra*0.9/T.length/2)));T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=(3+per)+'px 6px'))}
+G.forEach(x=>x.style.minHeight=P.h+'px')}
+function printFit(){const b=$('bill'),w=$('pw'),P=pp();unfit();if(S.sp=='sep'){fit();return}
+const g=b.querySelector('.pg');b.querySelectorAll('tr.dr td').forEach(c=>c.style.padding='');g.style.minHeight='0';let H=b.offsetHeight;
 if(H<=P.h){fit();return}
 let s=1;for(let i=0;i<8;i++){const n=Math.min(1,P.h/H);if(Math.abs(n-s)<0.004)break;s=n;b.style.width=Math.round(P.w/s)+'px';H=b.offsetHeight}
 if(H*s>P.h)s=P.h/H;b.style.transformOrigin='top left';b.style.transform='scale('+s+')';w.style.width=P.w+'px';w.style.height=Math.floor(H*s)+'px';w.style.overflow='hidden'}
