@@ -19,7 +19,7 @@ label{display:block;font-size:12px;color:var(--mu);margin-bottom:2px}
 input,select,textarea{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
 .g{display:grid;gap:8px;grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
 button{padding:10px 14px;border:0;border-radius:8px;background:var(--ac);color:#fff;font:inherit;font-weight:600}
-button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}
+button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}button:disabled{opacity:.4}summary{cursor:pointer;padding:6px 0}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .it{border-top:1px dashed var(--bd);padding-top:8px;margin-top:8px}
 .li{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--bd)}
@@ -81,37 +81,101 @@ const p=(c.pr||{})._||(c.pr||{})[nm]||{},q=p.per=='piece'?N:A,rt=+p.rate||0,line
 const fx=FX.map(([n2,k])=>{const f=(c.fx||{})[k]||{},h=has(f.rate),q2=k=='mo'?MO:(has(f.qty)?+f.qty:1),r2=+f.rate||0;return{nm:n2,k,h,q:q2,rt:r2,am:h?q2*r2:0}});
 const sum=[...lines,...fx].reduce((s,x)=>s+x.am,0),hf=has(c.fin),tot=hf?(+c.fin||0):sum;
 return{rows,ord:[nm],lines,fx,A,N,MO,sum,hf,adj:tot-sum,tot,bal:tot-(+c.paid||0)}}
-let QV='',SV='upd_d',FV='all';
+let QV='',SV='upd_d',FV='all',UH={u:[],r:[],last:'',t:null},CL=[];
 const SO=[['upd_d','Last updated (newest)'],['upd_a','Last updated (oldest)'],['cre_d','Created date (newest)'],['cre_a','Created date (oldest)'],['name_a','Bill name A to Z'],['name_z','Bill name Z to A'],['cus_a','Customer A to Z'],['cus_z','Customer Z to A'],['amt_d','Amount (high to low)'],['amt_a','Amount (low to high)'],['bal_d','Balance pending (high to low)']],
 FL=[['all','All bills'],['due','Balance pending'],['paid','Fully paid'],['marble','Marble only'],['kadappa','Kadappa only']];
+const act=()=>S.calcs.filter(c=>!c.del);
 const hay=(c,r)=>[c.name,c.customer,c.mob,String(c.mob||'').replace(/\D/g,''),matOf(c),c.kind=='kadappa'?'kadappa':'marble',c.num,fdn(c.created),fdn(c.updated),fdd(c.created),Math.round(r.tot),r.tot,r.bal,c.paid].join(' ').toLowerCase();
 const tx=(a,b)=>String(a||'').localeCompare(String(b||''),undefined,{numeric:true,sensitivity:'base'});
 const SF={upd_d:(a,b)=>b.c.updated-a.c.updated,upd_a:(a,b)=>a.c.updated-b.c.updated,cre_d:(a,b)=>b.c.created-a.c.created,cre_a:(a,b)=>a.c.created-b.c.created,
 name_a:(a,b)=>tx(a.c.name,b.c.name),name_z:(a,b)=>tx(b.c.name,a.c.name),cus_a:(a,b)=>tx(a.c.customer,b.c.customer),cus_z:(a,b)=>tx(b.c.customer,a.c.customer),
 amt_d:(a,b)=>b.r.tot-a.r.tot,amt_a:(a,b)=>a.r.tot-b.r.tot,bal_d:(a,b)=>b.r.bal-a.r.bal};
-function home(){flush();cur=null;$('app').innerHTML=`<h1>Granite Bill <button class="s" onclick="biz()">Settings</button></h1><button style="width:100%" onclick="nw()">+ New Bill</button>
+function home(){if(cur){clearTimeout(UH.t);snap(cur,'Saved')}flush();cur=null;$('app').innerHTML=`<h1>Granite Bill <button class="s" onclick="biz()">Settings</button></h1><button style="width:100%" onclick="nw()">+ New Bill</button>
+<div class="card" id="sm" style="margin:12px 0 0"></div>
 <input id="q" type="search" placeholder="Search name, customer, mobile, material, date, amount" oninput="QV=this.value;lst()" value="${esc(QV)}" style="margin:12px 0 8px">
 <div class="g"><div><label>Sort by</label><select id="so" onchange="SV=this.value;lst()">${SO.map(([v,t])=>`<option value="${v}" ${v==SV?'selected':''}>${t}</option>`).join('')}</select></div><div><label>Show</label><select id="fl" onchange="FV=this.value;lst()">${FL.map(([v,t])=>`<option value="${v}" ${v==FV?'selected':''}>${t}</option>`).join('')}</select></div></div>
-<div class="mu" id="cn" style="margin:8px 0 6px"></div><div class="card" id="ls"></div><div class="row"><button class="s" onclick="logout()">Logout</button></div><div class="mu" style="margin-top:8px">${esc(U&&U.email||'')} · ${navigator.onLine?'Online, saved to cloud':'Offline, will sync when online'}</div>`;lst()}
-function lst(){const e=$('ls');if(!e)return;const T=QV.toLowerCase().split(/\s+/).filter(Boolean);
-const L=S.calcs.map(c=>({c,r:calc(c)})).filter(({c,r})=>{
+<div class="mu" id="cn" style="margin:8px 0 6px"></div><div class="card" id="ls"></div>
+<div class="row"><button class="s" onclick="cv()">Customers</button><button class="s" onclick="trashV()">Trash (${S.calcs.filter(c=>c.del).length})</button><button class="s" onclick="expB()">Export bills</button><button class="s" onclick="expP()">Export pieces</button></div>
+<div class="row"><button class="s" onclick="logout()">Logout</button></div><div class="mu" style="margin-top:8px">${esc(U&&U.email||'')} · ${navigator.onLine?'Online, saved to cloud':'Offline, will sync when online'}</div>`;lst()}
+function lst(){const e=$('ls');if(!e)return;const T=QV.toLowerCase().split(/\s+/).filter(Boolean),A=act().map(c=>({c,r:calc(c)})),dueL=A.filter(x=>x.r.bal>0.005),sm=$('sm');
+if(sm)sm.innerHTML=`<div class="tot"><span class="mu">Pending to collect</span><b>₹${f2(dueL.reduce((s,x)=>s+x.r.bal,0))}</b></div><div class="mu">${dueL.length} of ${A.length} bills have balance pending</div>`;
+const L=A.filter(({c,r})=>{
 if(FV=='due'&&!(r.bal>0.005))return false;if(FV=='paid'&&!(r.bal<=0.005&&r.tot>0))return false;if(FV=='marble'&&c.kind=='kadappa')return false;if(FV=='kadappa'&&c.kind!='kadappa')return false;
 if(!T.length)return true;const h=hay(c,r);return T.every(t=>h.includes(t))}).sort(SF[SV]||SF.upd_d);
-const cn=$('cn');if(cn)cn.textContent=L.length+' of '+S.calcs.length+' bills';
-e.innerHTML=L.length?L.map(({c,r})=>`<div class="li" onclick="op('${c.id}')"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')}${c.mob?' · '+esc(c.mob):''}</div><div class="mu">${c.kind=='kadappa'?'Kadappa':'Marble'} · Created ${fdn(c.created)} · Updated ${fd(c.updated)}</div></div><div style="text-align:right"><b>₹${f2(r.tot)}</b>${r.bal>0.005?`<div class="mu" style="color:#b3261e">Due ₹${f2(r.bal)}</div>`:''}</div></div>`).join(''):`<div class="mu">${S.calcs.length?'No bills match. Clear the search or change the filter.':'No bills yet.'}</div>`}
-function nw(){S.n++;const t=Date.now();cur={id:'c'+t,num:S.n,auto:true,name:String(S.n).padStart(2,'0'),created:t,updated:t,customer:'',mob:'',mat:'',kind:'marble',rows:[newRow()],pr:{},fx:{},paid:''};S.calcs.push(cur);save();ed()}
-function op(id){cur=S.calcs.find(c=>c.id==id);ed()}
+const cn=$('cn');if(cn)cn.textContent=L.length+' of '+A.length+' bills';
+e.innerHTML=L.length?L.map(({c,r})=>`<div class="li" onclick="op('${c.id}')"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')}${c.mob?' · '+esc(c.mob):''}</div><div class="mu">${c.kind=='kadappa'?'Kadappa':'Marble'} · Created ${fdn(c.created)} · Updated ${fd(c.updated)}</div></div><div style="text-align:right"><b>₹${f2(r.tot)}</b>${r.bal>0.005?`<div class="mu" style="color:#b3261e">Due ₹${f2(r.bal)}</div>`:''}</div></div>`).join(''):`<div class="mu">${A.length?'No bills match. Clear the search or change the filter.':'No bills yet.'}</div>`}
+
+/* ---------- Undo / Redo (while a bill is open) ---------- */
+const snp=c=>{const o={...c};delete o._k;delete o.hist;delete o.updated;return JSON.stringify(o)};
+function uhi(){UH={u:[],r:[],last:snp(cur),t:null}}
+function uc(){if(!cur)return;clearTimeout(UH.t);const n=snp(cur);if(n!==UH.last){UH.u.push(UH.last);if(UH.u.length>100)UH.u.shift();UH.r=[];UH.last=n}uhb()}
+function uhb(){const u=$('bu'),r=$('br');if(!u||!r||!cur)return;u.disabled=!(UH.u.length||snp(cur)!==UH.last);r.disabled=!UH.r.length}
+function apl(t){const o=JSON.parse(t),keep=['_k','hist','updated'];Object.keys(cur).forEach(k=>{if(!(k in o)&&!keep.includes(k))delete cur[k]});Object.assign(cur,o);UH.last=snp(cur);cur.updated=Date.now();save();ed()}
+function undo(){uc();if(!UH.u.length)return;UH.r.push(UH.last);apl(UH.u.pop())}
+function redo(){uc();if(!UH.r.length)return;UH.u.push(UH.last);apl(UH.r.pop())}
+
+/* ---------- Old versions (saved in cloud with the bill) ---------- */
+function snap(c,note){const t=snp(c),h=c.hist=c.hist||[],l=h[h.length-1];if(l&&l.s==t)return;h.push({t:Date.now(),s:t,tot:calc(c).tot,note:note||''});while(h.length>15)h.shift()}
+const vdet=(o,r)=>`<div class="mu" style="margin-top:6px">${esc(o.customer||'No customer')}${o.mob?' · '+esc(o.mob):''} · ${o.kind=='kadappa'?'Kadappa':'Marble'}${matOf(o)?' · '+esc(matOf(o)):''}</div><div style="margin-top:6px">${o.rows.map((x,n)=>`${esc(x.l)} × ${esc(x.w)} × ${esc(x.n)} = ${f2(r.rows[n].ar)} sq ft`).join('<br>')}</div><div class="mu" style="margin:6px 0">Total ${r.N} pcs · ${f2(r.A)} sq ft · ₹${f2(r.tot)}</div>`;
+function hv(){uc();const h=cur.hist||[];$('app').innerHTML=`<h1><button class="s" onclick="ed()">← Back</button></h1><div class="card"><b>Old versions</b><div class="mu">A version is saved every time you open or leave this bill (last 15 are kept). Restoring saves your current bill as a version first, and does not change payments.</div></div>`+
+(h.length?h.map((v,i)=>({v,i})).reverse().map(({v,i})=>{const o=JSON.parse(v.s),r=calc(o);return`<div class="card"><details><summary><b>${fd(v.t)}</b> · ₹${f2(r.tot)}${v.note?' · '+esc(v.note):''}</summary>${vdet(o,r)}<div class="row"><button onclick="rv(${i})">Restore this version</button></div></details></div>`}).join(''):'<div class="card mu">No old versions yet.</div>')}
+function rv(i){const v=(cur.hist||[])[i];if(!v)return;if(!confirm('Restore this version?\n\nYour current bill is saved as a version first. Payments stay as they are.'))return;uc();const prev=snp(cur);snap(cur,'Before restore');const o=JSON.parse(v.s);delete o.pay;delete o.paid;const keep=['_k','hist','updated','pay','paid'];Object.keys(cur).forEach(k=>{if(!(k in o)&&!keep.includes(k))delete cur[k]});Object.assign(cur,o);UH.u.push(prev);UH.r=[];UH.last=snp(cur);cur.updated=Date.now();save();ed()}
+
+/* ---------- Payments ---------- */
+const psum=c=>Math.round((c.pay||[]).reduce((s,x)=>s+(+x.a||0),0)*100)/100;
+function mig(c){if(!c.pay){c.pay=[];if(+c.paid>0)c.pay.push({d:c.updated||c.created||Date.now(),a:+c.paid,n:'Earlier payment'});c.paid=psum(c)}}
+function pys(){const c=cur,e=$('py');if(!e)return;const td=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+e.innerHTML=(c.pay||[]).map((x,i)=>`<div class="li"><div><b>₹${f2(x.a)}</b><div class="mu">${fdn(x.d)}${x.n?' · '+esc(x.n):''}</div></div><button class="s" onclick="rp(${i})">Remove</button></div>`).join('')+
+`<div class="tot" style="margin-top:6px"><span class="mu">Total paid</span><b>₹${f2(psum(c))}</b></div><div class="it"><div class="g g3"><div><label>Amount ₹</label><input id="pyA" type="number" inputmode="decimal"></div><div><label>Date</label><input id="pyD" type="date" value="${td}"></div><div><label>Note</label><input id="pyN" placeholder="Cash / UPI"></div></div><div class="row"><button onclick="addp()">Add payment</button><button class="s" onclick="fillb()">Fill balance</button></div></div>`}
+function addp(){const a=+$('pyA').value;if(!(a>0)){alert('Enter the payment amount.');return}const d=$('pyD').value,t=d?new Date(d+'T12:00:00').getTime():Date.now();cur.pay=cur.pay||[];cur.pay.push({d:t,a,n:$('pyN').value.trim()});cur.pay.sort((x,y)=>x.d-y.d);cur.paid=psum(cur);pys();touch()}
+function rp(i){cur.pay.splice(i,1);cur.paid=psum(cur);pys();touch()}
+function fillb(){$('pyA').value=Math.max(0,Math.round(calc(cur).bal*100)/100)||''}
+
+/* ---------- Copy bill ---------- */
+function dup(){const keep=confirm('Copy the pieces (sizes) also?\n\nOK = copy sizes too\nCancel = only customer, material and rates');uc();snap(cur,'Saved');flush();
+const o=JSON.parse(JSON.stringify(cur));delete o._k;delete o.hist;delete o.del;S.n++;const t=Date.now();
+const c=Object.assign(o,{id:'c'+t,num:S.n,auto:true,created:t,updated:t,paid:'',pay:[],fin:'',rows:keep?o.rows:[newRow()]});c.name=autoName(c);S.calcs.push(c);cur=c;uhi();save();ed()}
+
+/* ---------- Trash ---------- */
+function wr(c){if(!U)return;const o=JSON.parse(JSON.stringify(c));delete o._k;db.collection('users').doc(U.uid).collection('bills').doc(c.id).set(o).catch(er)}
+function trashV(){const L=S.calcs.filter(c=>c.del).sort((a,b)=>b.del-a.del);$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button></h1><div class="card"><b>Trash</b><div class="mu">Deleted bills stay here until you delete them forever.</div>${L.length?L.map(c=>`<div class="li"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')} · ₹${f2(calc(c).tot)}</div><div class="mu">Deleted ${fd(c.del)}</div></div><div class="row" style="margin:0"><button class="s" onclick="restoreT('${c.id}')">Restore</button><button class="d" onclick="purge('${c.id}')">Delete forever</button></div></div>`).join(''):'<div class="mu" style="margin-top:8px">Trash is empty.</div>'}</div>`}
+function restoreT(id){const c=S.calcs.find(x=>x.id==id);if(!c)return;delete c.del;wr(c);trashV()}
+function purge(id){const c=S.calcs.find(x=>x.id==id);if(!c||!confirm('Delete this bill forever? This cannot be undone.'))return;S.calcs=S.calcs.filter(x=>x!==c);if(U)db.collection('users').doc(U.uid).collection('bills').doc(id).delete().catch(er);trashV()}
+
+/* ---------- Customers (pending summary) ---------- */
+function cv(){const m={};act().forEach(c=>{const r=calc(c),k=(c.customer||'').trim().toLowerCase()||'~',g=m[k]=m[k]||{n:(c.customer||'').trim(),mob:'',c:0,t:0,b:0};g.c++;g.t+=r.tot;g.b+=r.bal;if(!g.mob&&c.mob)g.mob=c.mob});
+CL=Object.values(m).sort((a,b)=>b.b-a.b);const T=CL.reduce((s,g)=>s+Math.max(0,g.b),0);
+$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button></h1><div class="card"><b>Customers</b><div class="mu">Total pending: ₹${f2(T)}. Tap a customer to see all their bills.</div>${CL.length?CL.map((g,i)=>`<div class="li" onclick="cu(${i})"><div><b>${esc(g.n||'No customer')}</b><div class="mu">${g.mob?esc(g.mob)+' · ':''}${g.c} bill${g.c>1?'s':''} · Billed ₹${f2(g.t)}</div></div><div style="text-align:right">${g.b>0.005?`<b style="color:#b3261e">Due ₹${f2(g.b)}</b>`:'<span class="mu">Settled</span>'}</div></div>`).join(''):'<div class="mu" style="margin-top:8px">No bills yet.</div>'}</div>`}
+function cu(i){const g=CL[i];QV=g&&g.n?g.n:'';FV='all';home()}
+
+/* ---------- Export to Excel (CSV) ---------- */
+const cs=v=>{v=String(v==null?'':v);if(/^[=+\-@]/.test(v)&&!/^[+-]?\d+(\.\d+)?$/.test(v))v="'"+v;return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+const cm=v=>{v=String(v||'').trim().replace(/"/g,'');return v&&/^[+\d][\d\s\-\/,+]*$/.test(v)?'"=""'+v+'"""':cs(v)};
+const tdy=()=>new Date().toISOString().slice(0,10);
+function dl(n,rows){const t='\ufeff'+rows.map(r=>r.join(',')).join('\r\n'),b=new Blob([t],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+function expB(){const L=act().sort((a,b)=>a.created-b.created);if(!L.length){alert('No bills to export.');return}
+dl('Granite_bills_'+tdy()+'.csv',[['Bill','Customer','Mobile','Material','Type','Created','Updated','Pieces','Area (sq ft)','Total','Paid','Balance'],...L.map(c=>{const r=calc(c);return[cs(c.name),cs(c.customer),cm(c.mob),cs(matOf(c)),c.kind=='kadappa'?'Kadappa':'Marble',fdn(c.created),fdn(c.updated),r.N,nf(r.A),nf(r.tot),nf(+c.paid||0),nf(r.bal)]})])}
+function expP(){const R=[['Bill','Customer','Type','Material','Date','Length','Breadth','Billed length','Billed breadth','Nos','Area (sq ft)']];
+act().sort((a,b)=>a.created-b.created).forEach(c=>{const r=calc(c);c.rows.forEach((x,n)=>R.push([cs(c.name),cs(c.customer),c.kind=='kadappa'?'Kadappa':'Marble',cs(matOf(c)),fdn(c.created),cs(x.l),cs(x.w),r.rows[n].L,r.rows[n].B,cs(x.n),nf(r.rows[n].ar)]))});
+if(R.length<2){alert('No pieces to export.');return}dl('Granite_pieces_'+tdy()+'.csv',R)}
+
+/* ---------- WhatsApp ---------- */
+function wa(){const c=cur,r=calc(c);let n=String(c.mob||'').split(/[\/,;]/)[0].replace(/\D/g,'').replace(/^0+/,'');if(n.length==10)n='91'+n;if(n.length<11){alert('Enter the customer mobile number in the bill first.');return}
+const t=`${S.biz.name}\nBill: ${c.name}\nDate: ${fdn(c.created)}\nTotal: ₹${f2(r.tot)}\nPaid: ₹${f2(+c.paid||0)}\nBalance: ₹${f2(r.bal)}\nThank you.`;window.open('https://wa.me/'+n+'?text='+encodeURIComponent(t),'_blank')}
+function nw(){S.n++;const t=Date.now();cur={id:'c'+t,num:S.n,auto:true,name:String(S.n).padStart(2,'0'),created:t,updated:t,customer:'',mob:'',mat:'',kind:'marble',rows:[newRow()],pr:{},fx:{},paid:'',pay:[]};S.calcs.push(cur);uhi();save();ed()}
+function op(id){cur=S.calcs.find(c=>c.id==id);if(!cur)return;mig(cur);snap(cur,'Opened');uhi();ed()}
 function ed(){const c=cur;
 $('ml').innerHTML=[...new Set(S.calcs.map(x=>(matOf(x)||'').trim()).filter(Boolean))].map(m=>`<option value="${esc(m)}">`).join('');
-$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><button onclick="bill()">Bill / Print</button></h1>
+$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><button onclick="bill()">Bill / Print</button></h1><div class="row" style="margin:0 0 12px"><button class="s" id="bu" onclick="undo()">↶ Undo</button><button class="s" id="br" onclick="redo()">↷ Redo</button><button class="s" onclick="hv()">Old versions</button><button class="s" onclick="dup()">Copy bill</button></div>
 <div class="card"><label>Bill name</label><input data-k="name" value="${esc(c.name)}"><div class="mu" id="dt"></div>
 <div class="g" style="margin-top:8px"><div><label>Material (one per bill)</label><input list="ml" data-k="mat" autocapitalize="words" value="${esc(matOf(c))}" placeholder="e.g. White"></div><div><label>Type</label><select data-k="kind"><option value="marble" ${c.kind!='kadappa'?'selected':''}>Marble</option><option value="kadappa" ${c.kind=='kadappa'?'selected':''}>Kadappa</option></select></div></div>
 <div class="g" style="margin-top:8px"><div><label>Customer name</label><input data-k="customer" autocapitalize="words" value="${esc(c.customer)}"></div><div><label>Mobile</label><input data-k="mob" inputmode="tel" value="${esc(c.mob)}"></div></div>
 <div class="mu" id="stp" style="margin-top:6px"></div></div>
 <div class="card"><b>Pieces</b><div id="rs"></div><div class="row"><button class="s" onclick="ar()">+ Add piece</button></div></div>
 <div class="card"><b>Price</b><div id="pz"></div></div>
-<div class="card" id="tt"></div><button class="d" onclick="del()">Delete this bill</button>`;
-document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;if(e.dataset.k=='kind'){c.mat=e.value=='kadappa'?'Kadappa':'';const m=document.querySelector('[data-k=mat]');if(m)m.value=c.mat}if(e.dataset.k=='customer'&&c.auto!==false&&c.num!=null){c.name=autoName(c);const nm=document.querySelector('[data-k=name]');if(nm)nm.value=c.name}if(e.dataset.k=='name')c.auto=false;touch()});rs();pricing();touch()}
+<div class="card"><b>Payments</b><div id="py"></div></div>
+<div class="card" id="tt"></div><button class="d" onclick="del()">Move to Trash</button>`;
+document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;if(e.dataset.k=='kind'){c.mat=e.value=='kadappa'?'Kadappa':'';const m=document.querySelector('[data-k=mat]');if(m)m.value=c.mat}if(e.dataset.k=='customer'&&c.auto!==false&&c.num!=null){c.name=autoName(c);const nm=document.querySelector('[data-k=name]');if(nm)nm.value=c.name}if(e.dataset.k=='name')c.auto=false;touch()});rs();pricing();if(!cur.pay)mig(cur);pys();touch(1);uhb()}
 function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><div class="g g3"><div><label>Length</label><input type="number" inputmode="decimal" data-r="${n}" data-f="l" value="${r.l}"></div><div><label>Breadth</label><input type="number" inputmode="decimal" data-r="${n}" data-f="w" value="${r.w}"></div><div><label>Nos</label><input type="number" inputmode="decimal" data-r="${n}" data-f="n" value="${r.n}" onfocus="this.select()"></div></div>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);margin-top:8px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;rs();touch()"> Molding</label>
 ${r.mo?`<select data-r="${n}" data-f="mt" style="margin-top:6px"><option value="">Select Molding Type</option><optgroup label="Single Side">${MTY.map(t=>`<option ${(r.mt||'').toLowerCase()==t.toLowerCase()?'selected':''}>${t}</option>`).join('')}</optgroup><optgroup label="Both Sides (Double)">${MTY.map(t=>`<option ${(r.mt||'').toLowerCase()==(t+'+'+t).toLowerCase()?'selected':''}>${t}+${t}</option>`).join('')}</optgroup></select>`:''}
@@ -120,20 +184,20 @@ document.querySelectorAll('[data-r]').forEach(e=>e.oninput=()=>{cur.rows[e.datas
 function pricing(){const r=calc(cur);cur._k=r.ord.join('|');
 $('pz').innerHTML=r.ord.map((k,i)=>{const p=(cur.pr||{})._||(cur.pr||{})[k]||{};return`<div class="it"><b>${esc(k)}</b><div class="g g3"><div><label>Qty</label><div class="v" id="pq${i}"></div></div><div><label>Rate ₹</label><input type="number" inputmode="decimal" data-p="_" data-f="rate" value="${p.rate||''}"></div><div><label>Per</label><select data-p="_" data-f="per"><option value="sqft" ${p.per!='piece'?'selected':''}>sq ft</option><option value="piece" ${p.per=='piece'?'selected':''}>piece</option></select></div></div><div class="tot"><span class="mu">Amount</span><b id="pa${i}"></b></div></div>`}).join('')+
 FX.map(([nm,k])=>{const f=(cur.fx||{})[k]||{},au=k=='mo';return`<div class="it"><b>${nm.toUpperCase()}</b><div class="g"><div><label>${au?'Qty (auto, rft)':'Qty (blank = 1)'}</label>${au?`<div class="v" id="fq${k}"></div>`:`<input type="number" inputmode="decimal" data-x="${k}" data-f="qty" value="${f.qty||''}">`}</div><div><label>Rate ₹</label><input type="number" inputmode="decimal" data-x="${k}" data-f="rate" value="${f.rate||''}"></div></div><div class="tot"><span class="mu">Amount</span><b id="fa${k}"></b></div></div>`}).join('')+
-`<div class="it"><label>Final price ₹ (optional: type to set your own total)</label><input type="number" inputmode="decimal" data-k="fin" value="${cur.fin||''}"><div class="mu" id="fh"></div></div><div class="it"><label>Paid ₹</label><input type="number" inputmode="decimal" data-k="paid" value="${cur.paid||''}"></div>`;
+`<div class="it"><label>Final price ₹ (optional: type to set your own total)</label><input type="number" inputmode="decimal" data-k="fin" value="${cur.fin||''}"><div class="mu" id="fh"></div></div>`;
 document.querySelectorAll('#pz [data-p]').forEach(e=>e.oninput=()=>{const k=e.dataset.p;cur.pr=cur.pr||{};(cur.pr[k]=cur.pr[k]||{})[e.dataset.f]=e.value;touch()});
 document.querySelectorAll('#pz [data-x]').forEach(e=>e.oninput=()=>{const k=e.dataset.x;cur.fx=cur.fx||{};(cur.fx[k]=cur.fx[k]||{})[e.dataset.f]=e.value;touch()});
 document.querySelectorAll('#pz [data-k]').forEach(e=>e.oninput=()=>{cur[e.dataset.k]=e.value;touch()})}
 const ar=()=>{cur.rows.push(newRow());rs();touch()},rr=n=>{cur.rows.splice(n,1);rs();touch()},rx=i=>{cur.ex.splice(i,1);pricing();touch()};
 function ax(){let n=$('xs').value;if(n=='Custom…'){n=(prompt('Line name')||'').trim();if(!n)return}cur.ex.push({name:n,qty:'',rate:''});pricing();touch()}
-function touch(){cur.updated=Date.now();save();const r=calc(cur);
+function touch(q){if(!q){cur.updated=Date.now();save();clearTimeout(UH.t);UH.t=setTimeout(uc,700)}const r=calc(cur);
 $('stp').textContent=cur.kind=='kadappa'?'Sizes in inches. Kadappa: next multiple of 6 (51→54, 17→18). Kadappa is 1 inch less than its size, so above 17 it goes to 24 (17.1→24, 18→24, 53.5→60). Bill prints your original sizes.':'Sizes in inches. Marble: length and breadth are billed in steps of 3 (4.25→6, 74→75).';
 $('dt').textContent='Created '+fd(cur.created)+' · Last updated '+fd(cur.updated);
 if(cur._k!==r.ord.join('|'))pricing();
 r.lines.forEach((x,i)=>{const q=$('pq'+i);if(q){q.textContent=f2(x.q);$('pa'+i).textContent='₹'+f2(x.am)}});r.fx.forEach(x=>{const q=$('fq'+x.k);if(q)q.textContent=f2(x.q);const a=$('fa'+x.k);if(a)a.textContent='₹'+f2(x.am)});const fh=$('fh');if(fh)fh.textContent='Calculated total: ₹'+f2(r.sum);
 r.rows.forEach((x,n)=>{const e=$('ra'+n);if(e)e.textContent=`Billed ${x.L} × ${x.B} · Area ${f2(x.ar)} sq ft`+(x.mo?` · Molding ${f2(x.mo)} rft`:'')});
-$('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / ${f2(r.A)} sq ft</b></div>${r.MO?`<div class="tot"><span>Total molding</span><b>${f2(r.MO)} rft</b></div>`:''}${r.hf&&Math.abs(r.adj)>0.005?`<div class="tot"><span>Calculated</span><span>₹${f2(r.sum)}</span></div><div class="tot"><span>Adjustment</span><span>${r.adj<0?'-':'+'}₹${f2(Math.abs(r.adj))}</span></div>`:''}<div class="tot gt"><span>TOTAL</span><span>₹${f2(r.tot)}</span></div><div class="tot"><span>Paid</span><span>₹${f2(+cur.paid||0)}</span></div><div class="tot"><b>BALANCE</b><b>₹${f2(r.bal)}</b></div>`}
-function del(){if(confirm('Delete this bill?')){const id=cur.id;S.calcs=S.calcs.filter(c=>c!==cur);cur=null;if(U)db.collection('users').doc(U.uid).collection('bills').doc(id).delete().catch(er);home()}}
+$('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / ${f2(r.A)} sq ft</b></div>${r.MO?`<div class="tot"><span>Total molding</span><b>${f2(r.MO)} rft</b></div>`:''}${r.hf&&Math.abs(r.adj)>0.005?`<div class="tot"><span>Calculated</span><span>₹${f2(r.sum)}</span></div><div class="tot"><span>Adjustment</span><span>${r.adj<0?'-':'+'}₹${f2(Math.abs(r.adj))}</span></div>`:''}<div class="tot gt"><span>TOTAL</span><span>₹${f2(r.tot)}</span></div><div class="tot"><span>Paid</span><span>₹${f2(+cur.paid||0)}</span></div><div class="tot"><b>BALANCE</b><b>₹${f2(r.bal)}</b></div>`;uhb()}
+function del(){if(confirm('Move this bill to Trash? You can restore it from Trash later.')){const c=cur;uc();snap(c,'Before delete');c.del=Date.now();wr(c);cur=null;home()}}
 const nf=x=>String(Math.round(x*100)/100),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],fdn=t=>{const d=new Date(t);return d.getDate()+'-'+MN[d.getMonth()]+'-'+d.getFullYear()};
 function bill(){const c=cur,r=calc(c),b=S.biz,sep=S.sp=='sep',mats=cap(matOf(c));
 const head=`<div class="ti">${esc(b.name)}</div><div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div><div class="tg">${esc(b.addr)}</div><div class="nm"><span>Name: &nbsp; ${esc(cap(c.customer||''))}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div><div class="mt">Material: &nbsp; ${esc(mats)}</div>`;
@@ -148,7 +212,7 @@ ${r.fx.map(x=>`<tr><td class="l">${x.nm.toUpperCase()}</td><td>${x.h?nf(x.rt):''
 ${r.hf&&Math.abs(r.adj)>0.005?`<tr><td colspan="3" class="l">ADJUSTMENT</td><td>${r.adj<0?'-':''}${nf(Math.abs(r.adj))}</td></tr>`:''}
 <tr class="tt"><td colspan="3" class="l">TOTAL</td><td>${nf(r.tot)}</td></tr><tr><td colspan="3" class="l">PAID</td><td>${nf(+c.paid||0)}</td></tr><tr class="tt"><td colspan="3" class="l">BALANCE</td><td>${nf(r.bal)}</td></tr></table>`;
 const sig=`<div class="sg">Customer Signature: ____________________<br>Thank you for your business.</div>`;
-$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="img()">Save as Image</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select><select id="pf" style="width:auto" onchange="S.pf=this.value;save();fit()"><option value="n" ${(S.pf||'n')=='n'?'selected':''}>Fit: Normal</option><option value="s" ${S.pf=='s'?'selected':''}>Fit: Smaller</option><option value="x" ${S.pf=='x'?'selected':''}>Fit: Smallest</option></select><select id="sp" style="width:auto" onchange="S.sp=this.value;save();bill()"><option value="same" ${!sep?'selected':''}>Price: Same page</option><option value="sep" ${sep?'selected':''}>Price: Separate page</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
+$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="img()">Save as Image</button><button onclick="wa()">WhatsApp</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select><select id="pf" style="width:auto" onchange="S.pf=this.value;save();fit()"><option value="n" ${(S.pf||'n')=='n'?'selected':''}>Fit: Normal</option><option value="s" ${S.pf=='s'?'selected':''}>Fit: Smaller</option><option value="x" ${S.pf=='x'?'selected':''}>Fit: Smallest</option></select><select id="sp" style="width:auto" onchange="S.sp=this.value;save();bill()"><option value="same" ${!sep?'selected':''}>Price: Same page</option><option value="sep" ${sep?'selected':''}>Price: Separate page</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
 <div class="sc" id="pw"><div id="bill">${sep?`<div class="pg">${head}${t1}</div><div class="pg">${small}${t2}${sig}</div>`:`<div class="pg">${head}${t1}${t2}${sig}</div>`}</div></div>`;setPage();fit()}
 const PH=window.PRINT_H||{};const PS={A4:{w:714,h:PH.A4||960},A5:{w:484,h:PH.A5||650}},pp=()=>{const p=PS[S.ps||'A4'];return{w:p.w,h:Math.round(p.h*({n:1,s:.94,x:.88}[S.pf||'n']))}};
 function setPage(){$('pg').textContent='@page{size:'+(S.ps||'A4')+' portrait;margin:10mm}'}
