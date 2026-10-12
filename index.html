@@ -5,7 +5,7 @@
 <script src="config.js"></script>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f4e79"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{--bg:#f6f5f2;--card:#fff;--tx:#1d1d1b;--mu:#6b6a66;--ac:#1f4e79;--bd:#d9d7d0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171716;--card:#232321;--tx:#f0efea;--mu:#9d9b94;--ac:#6aa9e0;--bd:#3a3a37}}
@@ -19,28 +19,28 @@ label{display:block;font-size:12px;color:var(--mu);margin-bottom:2px}
 input,select,textarea{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
 .g{display:grid;gap:8px;grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
 button{padding:10px 14px;border:0;border-radius:8px;background:var(--ac);color:#fff;font:inherit;font-weight:600}
-button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}button:disabled{opacity:.4}summary{cursor:pointer;padding:6px 0}
+button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}button:disabled{opacity:.4}.bw+.bw{margin-top:14px}.ic{background:transparent!important;color:#b3261e!important;border:0;padding:6px 8px;font-size:19px;width:auto;min-width:0;line-height:1}summary{cursor:pointer;padding:6px 0}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .it{border-top:1px dashed var(--bd);padding-top:8px;margin-top:8px}
 .li{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--bd)}
 .mu{color:var(--mu);font-size:13px}.tot{display:flex;justify-content:space-between;padding:3px 0}.v{padding:9px 0;font-weight:600}
 .gt{font-size:19px;font-weight:700;border-top:2px solid var(--tx);margin-top:6px;padding-top:6px}
 .sc{overflow-x:auto}
-#bill{background:#fff;color:#000;font:14px/1.35 Georgia,'Times New Roman',serif}
-#bill .pg{border:1px solid #000;padding:22px 20px;display:flex;flex-direction:column}#bill .pg+.pg{margin-top:14px}#bill .l{text-align:left;padding-left:8px}#bill .im{font-style:italic}
-#bill .ti{text-align:center;font-size:27px;font-weight:700;margin-bottom:12px}
-#bill .top{display:flex;justify-content:space-between;align-items:center;font-size:15px}
-#bill .dt{border:1px solid #000;width:46%;padding:2px 8px;display:flex;justify-content:space-between;font-weight:700}
-#bill .tg{text-align:center;font-size:13.5px;margin:4px 0 6px;padding-bottom:6px;border-bottom:1px solid #000}
-#bill .nm{display:flex;justify-content:space-between;font-size:16px;padding:6px 10px 0}
-#bill .mt{font-size:16px;padding:8px 6px 8px}
-#bill table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border-top:1px solid #000;border-left:1px solid #000;margin:0 0 10px}
-#bill th,#bill td{border-right:1px solid #000;border-bottom:1px solid #000;padding:3px 6px;text-align:center;font-size:15px}
-#bill th{font-weight:700}#bill .tt td{font-weight:700}
-#bill .sg{break-inside:avoid;page-break-inside:avoid;width:max-content;margin:auto 0 0 auto;padding-top:26px;font-size:15px}
+.bill{background:#fff;color:#000;font:14px/1.35 Georgia,'Times New Roman',serif}
+.bill .pg{border:1px solid #000;padding:22px 20px;display:flex;flex-direction:column}.bill .pg+.pg{margin-top:14px}.bill .l{text-align:left;padding-left:8px}.bill .im{font-style:italic}
+.bill .ti{text-align:center;font-size:27px;font-weight:700;margin-bottom:12px}
+.bill .top{display:flex;justify-content:space-between;align-items:center;font-size:15px}
+.bill .dt{border:1px solid #000;width:46%;padding:2px 8px;display:flex;justify-content:space-between;font-weight:700}
+.bill .tg{text-align:center;font-size:13.5px;margin:4px 0 6px;padding-bottom:6px;border-bottom:1px solid #000}
+.bill .nm{display:flex;justify-content:space-between;font-size:16px;padding:6px 10px 0}
+.bill .mt{font-size:16px;padding:8px 6px 8px}
+.bill table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border-top:1px solid #000;border-left:1px solid #000;margin:0 0 10px}
+.bill th,.bill td{border-right:1px solid #000;border-bottom:1px solid #000;padding:3px 6px;text-align:center;font-size:15px}
+.bill th{font-weight:700}.bill .tt td{font-weight:700}
+.bill .sg{break-inside:avoid;page-break-inside:avoid;width:max-content;margin:auto 0 0 auto;padding-top:26px;font-size:15px}
 a.bt{display:inline-block;padding:10px 14px;border-radius:8px;background:var(--ac);color:#fff;font-weight:600;text-decoration:none}
 .md{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;z-index:9;overflow:auto;padding:16px}.md img{width:100%;background:#fff}
-@media print{html,body{background:#fff!important}body>*:not(#app){display:none!important}.noprint{display:none!important}.w{max-width:none;padding:0;margin:0}#pw{display:block!important;overflow:visible}#bill{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}#bill .pg+.pg{break-before:page;margin-top:0}}
+@media print{html,body{background:#fff!important}body>*:not(#app){display:none!important}.noprint{display:none!important}.w{max-width:none;padding:0;margin:0}#pw,.bw{display:block!important;overflow:visible}.bw+.bw{break-before:page;margin-top:0}.bill{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.bill .pg+.pg{break-before:page;margin-top:0}}
 </style><style id="pg">@page{size:A4 portrait;margin:10mm}</style></head><body>
 <div class="w" id="app"></div><div class="md" id="md"></div><datalist id="ml"></datalist>
 <script>
@@ -95,7 +95,7 @@ function home(){if(cur){clearTimeout(UH.t);snap(cur,'Saved')}flush();cur=null;$(
 <input id="q" type="search" placeholder="Search name, customer, mobile, material, date, amount" oninput="QV=this.value;lst()" value="${esc(QV)}" style="margin:12px 0 8px">
 <div class="g"><div><label>Sort by</label><select id="so" onchange="SV=this.value;lst()">${SO.map(([v,t])=>`<option value="${v}" ${v==SV?'selected':''}>${t}</option>`).join('')}</select></div><div><label>Show</label><select id="fl" onchange="FV=this.value;lst()">${FL.map(([v,t])=>`<option value="${v}" ${v==FV?'selected':''}>${t}</option>`).join('')}</select></div></div>
 <div class="mu" id="cn" style="margin:8px 0 6px"></div><div class="card" id="ls"></div>
-<div class="row"><button class="s" onclick="cv()">Customers</button><button class="s" onclick="trashV()">Trash (${S.calcs.filter(c=>c.del).length})</button><button class="s" onclick="expB()">Export bills</button><button class="s" onclick="expP()">Export pieces</button></div>
+<div class="row"><button class="s" onclick="cv()">Customers</button><button class="s" onclick="trashV()">Trash (${S.calcs.filter(c=>c.del).length})</button><button class="s" onclick="XQ='';xs([])">Export / Print</button></div>
 <div class="row"><button class="s" onclick="logout()">Logout</button></div><div class="mu" style="margin-top:8px">${esc(U&&U.email||'')} · ${navigator.onLine?'Online, saved to cloud':'Offline, will sync when online'}</div>`;lst()}
 function lst(){const e=$('ls');if(!e)return;const T=QV.toLowerCase().split(/\s+/).filter(Boolean),A=act().map(c=>({c,r:calc(c)})),dueL=A.filter(x=>x.r.bal>0.005),sm=$('sm');
 if(sm)sm.innerHTML=`<div class="tot"><span class="mu">Pending to collect</span><b>₹${f2(dueL.reduce((s,x)=>s+x.r.bal,0))}</b></div><div class="mu">${dueL.length} of ${A.length} bills have balance pending</div>`;
@@ -103,7 +103,7 @@ const L=A.filter(({c,r})=>{
 if(FV=='due'&&!(r.bal>0.005))return false;if(FV=='paid'&&!(r.bal<=0.005&&r.tot>0))return false;if(FV=='marble'&&c.kind=='kadappa')return false;if(FV=='kadappa'&&c.kind!='kadappa')return false;
 if(!T.length)return true;const h=hay(c,r);return T.every(t=>h.includes(t))}).sort(SF[SV]||SF.upd_d);
 const cn=$('cn');if(cn)cn.textContent=L.length+' of '+A.length+' bills';
-e.innerHTML=L.length?L.map(({c,r})=>`<div class="li" onclick="op('${c.id}')"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')}${c.mob?' · '+esc(c.mob):''}</div><div class="mu">${c.kind=='kadappa'?'Kadappa':'Marble'} · Created ${fdn(c.created)} · Updated ${fd(c.updated)}</div></div><div style="text-align:right"><b>₹${f2(r.tot)}</b>${r.bal>0.005?`<div class="mu" style="color:#b3261e">Due ₹${f2(r.bal)}</div>`:''}</div></div>`).join(''):`<div class="mu">${A.length?'No bills match. Clear the search or change the filter.':'No bills yet.'}</div>`}
+e.innerHTML=L.length?L.map(({c,r})=>`<div class="li" onclick="op('${c.id}')"><div><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')}${c.mob?' · '+esc(c.mob):''}</div><div class="mu">${c.kind=='kadappa'?'Kadappa':'Marble'} · Created ${fdn(c.created)} · Updated ${fd(c.updated)}</div></div><div style="display:flex;align-items:center;gap:2px"><div style="text-align:right"><b>₹${f2(r.tot)}</b>${r.bal>0.005?`<div class="mu" style="color:#b3261e">Due ₹${f2(r.bal)}</div>`:''}</div><button class="ic" onclick="event.stopPropagation();delb('${c.id}')" aria-label="Move to Trash">🗑</button></div></div>`).join(''):`<div class="mu">${A.length?'No bills match. Clear the search or change the filter.':'No bills yet.'}</div>`}
 
 /* ---------- Undo / Redo (while a bill is open) ---------- */
 const snp=c=>{const o={...c};delete o._k;delete o.hist;delete o.updated;return JSON.stringify(o)};
@@ -134,7 +134,7 @@ function fillb(){$('pyA').value=Math.max(0,Math.round(calc(cur).bal*100)/100)||'
 /* ---------- Copy bill ---------- */
 function dup(){const keep=confirm('Copy the pieces (sizes) also?\n\nOK = copy sizes too\nCancel = only customer, material and rates');uc();snap(cur,'Saved');flush();
 const o=JSON.parse(JSON.stringify(cur));delete o._k;delete o.hist;delete o.del;S.n++;const t=Date.now();
-const c=Object.assign(o,{id:'c'+t,num:S.n,auto:true,created:t,updated:t,paid:'',pay:[],fin:'',rows:keep?o.rows:[newRow()]});c.name=autoName(c);S.calcs.push(c);cur=c;uhi();save();ed()}
+const c=Object.assign(o,{id:'c'+t+(S.calcs.some(x=>x.id=='c'+t)?'_'+S.calcs.length:''),num:S.n,auto:true,created:t,updated:t,paid:'',pay:[],fin:'',rows:keep?o.rows:[newRow()]});c.name=autoName(c);S.calcs.push(c);if(SESS.includes(cur.id))SESS.push(c.id);cur=c;uhi();save();ed()}
 
 /* ---------- Trash ---------- */
 function wr(c){if(!U)return;const o=JSON.parse(JSON.stringify(c));delete o._k;db.collection('users').doc(U.uid).collection('bills').doc(c.id).set(o).catch(er)}
@@ -152,21 +152,23 @@ function cu(i){const g=CL[i];QV=g&&g.n?g.n:'';FV='all';home()}
 const cs=v=>{v=String(v==null?'':v);if(/^[=+\-@]/.test(v)&&!/^[+-]?\d+(\.\d+)?$/.test(v))v="'"+v;return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 const cm=v=>{v=String(v||'').trim().replace(/"/g,'');return v&&/^[+\d][\d\s\-\/,+]*$/.test(v)?'"=""'+v+'"""':cs(v)};
 const tdy=()=>new Date().toISOString().slice(0,10);
-function dl(n,rows){const t='\ufeff'+rows.map(r=>r.join(',')).join('\r\n'),b=new Blob([t],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
-function expB(){const L=act().sort((a,b)=>a.created-b.created);if(!L.length){alert('No bills to export.');return}
+function dlb(n,b){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+const csvT=rows=>'\ufeff'+rows.map(r=>r.join(',')).join('\r\n');
+function dl(n,rows){dlb(n,new Blob([csvT(rows)],{type:'text/csv;charset=utf-8'}))}
+function expB(L){L=(L||act()).slice().sort((a,b)=>a.created-b.created);if(!L.length){alert('No bills to export.');return}
 dl('Granite_bills_'+tdy()+'.csv',[['Bill','Customer','Mobile','Material','Type','Created','Updated','Pieces','Area (sq ft)','Total','Paid','Balance'],...L.map(c=>{const r=calc(c);return[cs(c.name),cs(c.customer),cm(c.mob),cs(matOf(c)),c.kind=='kadappa'?'Kadappa':'Marble',fdn(c.created),fdn(c.updated),r.N,nf(r.A),nf(r.tot),nf(+c.paid||0),nf(r.bal)]})])}
-function expP(){const R=[['Bill','Customer','Type','Material','Date','Length','Breadth','Billed length','Billed breadth','Nos','Area (sq ft)']];
-act().sort((a,b)=>a.created-b.created).forEach(c=>{const r=calc(c);c.rows.forEach((x,n)=>R.push([cs(c.name),cs(c.customer),c.kind=='kadappa'?'Kadappa':'Marble',cs(matOf(c)),fdn(c.created),cs(x.l),cs(x.w),r.rows[n].L,r.rows[n].B,cs(x.n),nf(r.rows[n].ar)]))});
+function expP(L){const R=[['Bill','Customer','Type','Material','Date','Length','Breadth','Billed length','Billed breadth','Nos','Area (sq ft)']];
+(L||act()).slice().sort((a,b)=>a.created-b.created).forEach(c=>{const r=calc(c);c.rows.forEach((x,n)=>R.push([cs(c.name),cs(c.customer),c.kind=='kadappa'?'Kadappa':'Marble',cs(matOf(c)),fdn(c.created),cs(x.l),cs(x.w),r.rows[n].L,r.rows[n].B,cs(x.n),nf(r.rows[n].ar)]))});
 if(R.length<2){alert('No pieces to export.');return}dl('Granite_pieces_'+tdy()+'.csv',R)}
 
 /* ---------- WhatsApp ---------- */
 function wa(){const c=cur,r=calc(c);let n=String(c.mob||'').split(/[\/,;]/)[0].replace(/\D/g,'').replace(/^0+/,'');if(n.length==10)n='91'+n;if(n.length<11){alert('Enter the customer mobile number in the bill first.');return}
 const t=`${S.biz.name}\nBill: ${c.name}\nDate: ${fdn(c.created)}\nTotal: ₹${f2(r.tot)}\nPaid: ₹${f2(+c.paid||0)}\nBalance: ₹${f2(r.bal)}\nThank you.`;window.open('https://wa.me/'+n+'?text='+encodeURIComponent(t),'_blank')}
-function nw(){S.n++;const t=Date.now();cur={id:'c'+t,num:S.n,auto:true,name:String(S.n).padStart(2,'0'),created:t,updated:t,customer:'',mob:'',mat:'',kind:'marble',rows:[newRow()],pr:{},fx:{},paid:'',pay:[]};S.calcs.push(cur);uhi();save();ed()}
-function op(id){cur=S.calcs.find(c=>c.id==id);if(!cur)return;mig(cur);snap(cur,'Opened');uhi();ed()}
+function nw(add){S.n++;const t=Date.now();cur={id:'c'+t+(S.calcs.some(x=>x.id=='c'+t)?'_'+S.calcs.length:''),num:S.n,auto:true,name:String(S.n).padStart(2,'0'),created:t,updated:t,customer:'',mob:'',mat:'',kind:'marble',rows:[newRow()],pr:{},fx:{},paid:'',pay:[]};S.calcs.push(cur);if(add)SESS.push(cur.id);else SESS=[cur.id];uhi();save();ed();window.scrollTo(0,0)}
+function op(id){cur=S.calcs.find(c=>c.id==id);if(!cur)return;SESS=[];mig(cur);snap(cur,'Opened');uhi();ed()}
 function ed(){const c=cur;
 $('ml').innerHTML=[...new Set(S.calcs.map(x=>(matOf(x)||'').trim()).filter(Boolean))].map(m=>`<option value="${esc(m)}">`).join('');
-$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><button onclick="bill()">Bill / Print</button></h1><div class="row" style="margin:0 0 12px"><button class="s" id="bu" onclick="undo()">↶ Undo</button><button class="s" id="br" onclick="redo()">↷ Redo</button><button class="s" onclick="hv()">Old versions</button><button class="s" onclick="dup()">Copy bill</button></div>
+$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><button onclick="bill()">Bill / Print</button></h1><div class="row" style="margin:0 0 12px"><button class="s" id="bu" onclick="undo()">↶ Undo</button><button class="s" id="br" onclick="redo()">↷ Redo</button><button class="s" onclick="hv()">Old versions</button><button class="s" onclick="dup()">Copy bill</button></div><div class="row" style="margin:0 0 12px"><button onclick="addb()">+ New bill</button><button class="d" onclick="del()">🗑 Move to Trash</button></div>${sbar()}
 <div class="card"><label>Bill name</label><input data-k="name" value="${esc(c.name)}"><div class="mu" id="dt"></div>
 <div class="g" style="margin-top:8px"><div><label>Material (one per bill)</label><input list="ml" data-k="mat" autocapitalize="words" value="${esc(matOf(c))}" placeholder="e.g. White"></div><div><label>Type</label><select data-k="kind"><option value="marble" ${c.kind!='kadappa'?'selected':''}>Marble</option><option value="kadappa" ${c.kind=='kadappa'?'selected':''}>Kadappa</option></select></div></div>
 <div class="g" style="margin-top:8px"><div><label>Customer name</label><input data-k="customer" autocapitalize="words" value="${esc(c.customer)}"></div><div><label>Mobile</label><input data-k="mob" inputmode="tel" value="${esc(c.mob)}"></div></div>
@@ -174,7 +176,7 @@ $('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button><but
 <div class="card"><b>Pieces</b><div id="rs"></div><div class="row"><button class="s" onclick="ar()">+ Add piece</button></div></div>
 <div class="card"><b>Price</b><div id="pz"></div></div>
 <div class="card"><b>Payments</b><div id="py"></div></div>
-<div class="card" id="tt"></div><button class="d" onclick="del()">Move to Trash</button>`;
+<div class="card" id="tt"></div><button style="width:100%" onclick="addb()">+ Add another bill</button>`;
 document.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{c[e.dataset.k]=e.value;if(e.dataset.k=='kind'){c.mat=e.value=='kadappa'?'Kadappa':'';const m=document.querySelector('[data-k=mat]');if(m)m.value=c.mat}if(e.dataset.k=='customer'&&c.auto!==false&&c.num!=null){c.name=autoName(c);const nm=document.querySelector('[data-k=name]');if(nm)nm.value=c.name}if(e.dataset.k=='name')c.auto=false;touch()});rs();pricing();if(!cur.pay)mig(cur);pys();touch(1);uhb()}
 function rs(){$('rs').innerHTML=cur.rows.map((r,n)=>`<div class="it"><div class="g g3"><div><label>Length</label><input type="number" inputmode="decimal" data-r="${n}" data-f="l" value="${r.l}"></div><div><label>Breadth</label><input type="number" inputmode="decimal" data-r="${n}" data-f="w" value="${r.w}"></div><div><label>Nos</label><input type="number" inputmode="decimal" data-r="${n}" data-f="n" value="${r.n}" onfocus="this.select()"></div></div>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);margin-top:8px"><input type="checkbox" style="width:auto" ${r.mo?'checked':''} onchange="cur.rows[${n}].mo=this.checked;rs();touch()"> Molding</label>
@@ -199,7 +201,7 @@ r.rows.forEach((x,n)=>{const e=$('ra'+n);if(e)e.textContent=`Billed ${x.L} × ${
 $('tt').innerHTML=`<div class="tot"><span>Total pieces / area</span><b>${r.N} / ${f2(r.A)} sq ft</b></div>${r.MO?`<div class="tot"><span>Total molding</span><b>${f2(r.MO)} rft</b></div>`:''}${r.hf&&Math.abs(r.adj)>0.005?`<div class="tot"><span>Calculated</span><span>₹${f2(r.sum)}</span></div><div class="tot"><span>Adjustment</span><span>${r.adj<0?'-':'+'}₹${f2(Math.abs(r.adj))}</span></div>`:''}<div class="tot gt"><span>TOTAL</span><span>₹${f2(r.tot)}</span></div><div class="tot"><span>Paid</span><span>₹${f2(+cur.paid||0)}</span></div><div class="tot"><b>BALANCE</b><b>₹${f2(r.bal)}</b></div>`;uhb()}
 function del(){if(confirm('Move this bill to Trash? You can restore it from Trash later.')){const c=cur;uc();snap(c,'Before delete');c.del=Date.now();wr(c);cur=null;home()}}
 const nf=x=>String(Math.round(x*100)/100),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],fdn=t=>{const d=new Date(t);return d.getDate()+'-'+MN[d.getMonth()]+'-'+d.getFullYear()};
-function bill(){const c=cur,r=calc(c),b=S.biz,sep=S.sp=='sep',mats=cap(matOf(c));
+function bpages(c){const r=calc(c),b=S.biz,sep=S.sp=='sep',mats=cap(matOf(c));
 const head=`<div class="ti">${esc(b.name)}</div><div class="top"><span>Mob. ${esc(b.phone)}</span><span class="dt"><span>Date:</span><span>${fdn(c.created)}</span></span></div><div class="tg">${esc(b.addr)}</div><div class="nm"><span>Name: &nbsp; ${esc(cap(c.customer||''))}</span><span>Mob.: &nbsp; ${esc(c.mob||'')}</span></div><div class="mt">Material: &nbsp; ${esc(mats)}</div>`;
 const small=`<div class="ti" style="font-size:22px">${esc(b.name)}</div><div class="nm" style="padding-bottom:8px"><span>Name: &nbsp; ${esc(cap(c.customer||''))}</span><span>Date: &nbsp; ${fdn(c.created)}</span></div>`;
 const TY=c.rows.some(x=>x.mo);
@@ -212,25 +214,90 @@ ${r.fx.map(x=>`<tr><td class="l">${x.nm.toUpperCase()}</td><td>${x.h?nf(x.rt):''
 ${r.hf&&Math.abs(r.adj)>0.005?`<tr><td colspan="3" class="l">ADJUSTMENT</td><td>${r.adj<0?'-':''}${nf(Math.abs(r.adj))}</td></tr>`:''}
 <tr class="tt"><td colspan="3" class="l">TOTAL</td><td>${nf(r.tot)}</td></tr><tr><td colspan="3" class="l">PAID</td><td>${nf(+c.paid||0)}</td></tr><tr class="tt"><td colspan="3" class="l">BALANCE</td><td>${nf(r.bal)}</td></tr></table>`;
 const sig=`<div class="sg">Customer Signature: ____________________<br>Thank you for your business.</div>`;
-$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="img()">Save as Image</button><button onclick="wa()">WhatsApp</button><select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select><select id="pf" style="width:auto" onchange="S.pf=this.value;save();fit()"><option value="n" ${(S.pf||'n')=='n'?'selected':''}>Fit: Normal</option><option value="s" ${S.pf=='s'?'selected':''}>Fit: Smaller</option><option value="x" ${S.pf=='x'?'selected':''}>Fit: Smallest</option></select><select id="sp" style="width:auto" onchange="S.sp=this.value;save();bill()"><option value="same" ${!sep?'selected':''}>Price: Same page</option><option value="sep" ${sep?'selected':''}>Price: Separate page</option></select></div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
-<div class="sc" id="pw"><div id="bill">${sep?`<div class="pg">${head}${t1}</div><div class="pg">${small}${t2}${sig}</div>`:`<div class="pg">${head}${t1}${t2}${sig}</div>`}</div></div>`;setPage();fit()}
+return sep?`<div class="pg">${head}${t1}</div><div class="pg">${small}${t2}${sig}</div>`:`<div class="pg">${head}${t1}${t2}${sig}</div>`}
+const ctl=()=>{const sep=S.sp=='sep';return `<select id="ps" style="width:auto" onchange="S.ps=this.value;save();setPage();fit()"><option ${S.ps!='A5'?'selected':''}>A4</option><option ${S.ps=='A5'?'selected':''}>A5</option></select><select id="pf" style="width:auto" onchange="S.pf=this.value;save();fit()"><option value="n" ${(S.pf||'n')=='n'?'selected':''}>Fit: Normal</option><option value="s" ${S.pf=='s'?'selected':''}>Fit: Smaller</option><option value="x" ${S.pf=='x'?'selected':''}>Fit: Smallest</option></select><select id="sp" style="width:auto" onchange="S.sp=this.value;save();${MV?'mview()':'bill()'}"><option value="same" ${!sep?'selected':''}>Price: Same page</option><option value="sep" ${sep?'selected':''}>Price: Separate page</option></select>`};
+function bill(){MV=null;$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="ed()">← Edit</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print</button><button onclick="pdfAll()">Save PDF</button><button onclick="img()">Save as Image</button><button onclick="wa()">WhatsApp</button>${SESS.length>1?`<button class="s" onclick="uc();flush();xs(SESS)">All ${SESS.length} bills</button>`:''}${ctl()}</div><div class="mu" style="margin-bottom:8px">Paper size: bill fills the full page.</div></div>
+<div class="sc bw" id="pw"><div class="bill" id="bill" data-n="${esc(cur.name)}">${bpages(cur)}</div></div>`;setPage();fit()}
+/* ---------- Many bills in one go, delete icon, pick bills to export ---------- */
+let SESS=[],XS=new Set(),XQ='',XSH=[],MV=null;
+const sbar=()=>SESS.length>1?`<div class="card" style="padding:10px"><div class="mu">Bills in this set (tap to switch)</div><div class="row" style="margin-top:6px">${SESS.map((id,i)=>{const c=S.calcs.find(x=>x.id==id);return c&&!c.del?`<button class="${id==cur.id?'':'s'}" style="padding:6px 12px" onclick="sw('${id}')">${i+1}. ${esc(String(c.name).slice(0,14))}</button>`:''}).join('')}</div><div class="row"><button class="s" onclick="uc();flush();xs(SESS)">Print / Export all ${SESS.length}</button></div></div>`:'';
+function addb(){if(!SESS.includes(cur.id))SESS.push(cur.id);uc();snap(cur,'Saved');flush();nw(true)}
+function sw(id){const c=S.calcs.find(x=>x.id==id);if(!c||c==cur)return;uc();snap(cur,'Saved');flush();cur=c;mig(cur);uhi();ed();window.scrollTo(0,0)}
+function delb(id){const c=S.calcs.find(x=>x.id==id);if(!c||!confirm('Move "'+c.name+'" to Trash?\nYou can restore it from Trash.'))return;snap(c,'Before delete');c.del=Date.now();wr(c);home()}
+const safeN=v=>String(v||'bill').replace(/[\\\/:*?"<>|]+/g,'_').trim()||'bill';
+
+/* export screen: tick bills, then print / pdf / image / csv */
+function xs(pre){if(pre)XS=new Set(pre.filter(id=>{const c=S.calcs.find(x=>x.id==id);return c&&!c.del}));
+$('app').innerHTML=`<h1><button class="s" onclick="${cur?'ed()':'home()'}">← Back</button></h1>
+<div class="card"><b>Export bills</b><div class="mu">Tick the bills you want, then choose what to do below.</div>
+<input id="xq" type="search" placeholder="Search name, customer, mobile, date" oninput="XQ=this.value;xl()" value="${esc(XQ)}" style="margin:8px 0">
+<div class="row" style="margin:0 0 6px"><button class="s" onclick="xa(1)">Select all shown</button><button class="s" onclick="xa(0)">Clear</button></div><div class="mu" id="xc"></div><div id="xl"></div></div>
+<div class="card"><b>Print / PDF / Image</b><div class="mu">Each bill starts on a new page (2 pages per bill if Price is set to a separate page).</div><div class="row"><button onclick="xgo('v')">Preview selected bills</button></div></div>
+<div class="card"><b>Excel (CSV)</b><div class="mu">Only the ticked bills.</div><div class="row"><button onclick="xgo('c1')">One file: bill summary</button><button onclick="xgo('c2')">One file: all pieces</button></div><div class="row"><button onclick="xgo('cz')">Separate file for each bill (one ZIP)</button><button class="s" onclick="xgo('cs')">Separate files, one by one</button></div></div>`;xl()}
+const xc=()=>{const e=$('xc');if(e)e.textContent=XS.size+' selected'};
+function xl(){const T=XQ.toLowerCase().split(/\s+/).filter(Boolean),L=act().map(c=>({c,r:calc(c)})).filter(({c,r})=>!T.length||T.every(t=>hay(c,r).includes(t))).sort((a,b)=>b.c.created-a.c.created);XSH=L.map(x=>x.c.id);
+const e=$('xl');if(e)e.innerHTML=L.length?L.map(({c,r})=>`<label class="li" style="align-items:center;cursor:pointer"><span style="display:flex;gap:10px;align-items:center"><input type="checkbox" style="width:auto" ${XS.has(c.id)?'checked':''} onchange="xt('${c.id}',this.checked)"><span><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')} · ${fdn(c.created)}</div></span></span><b>₹${f2(r.tot)}</b></label>`).join(''):'<div class="mu">No bills found.</div>';xc()}
+function xt(id,on){if(on)XS.add(id);else XS.delete(id);xc()}
+function xa(on){if(on)XSH.forEach(id=>XS.add(id));else XS.clear();xl()}
+function xgo(m){const L=act().filter(c=>XS.has(c.id)).sort((a,b)=>a.created-b.created);if(!L.length){alert('Tick at least one bill first.');return}
+if(m=='v'){mview(L.map(c=>c.id));return}
+if(m=='c1'){expB(L);return}if(m=='c2'){expP(L);return}
+const used={},F=L.map(c=>{const n=safeN(c.name);let k=n,i=2;while(used[k.toLowerCase()])k=n+'_'+i++;used[k.toLowerCase()]=1;return{n:k+'.csv',R:billRows(c)}});
+if(m=='cs'){F.forEach((f,i)=>setTimeout(()=>dl(f.n,f.R),i*700));return}
+if(m=='cz'){const en=new TextEncoder();dlb('Granite_bills_'+tdy()+'.zip',zip(F.map(f=>({n:f.n,d:en.encode(csvT(f.R))}))))}}
+
+/* one bill = one CSV */
+function billRows(c){const r=calc(c),R=[];R.push(['Bill',cs(c.name)],['Customer',cs(c.customer)],['Mobile',cm(c.mob)],['Date',fdn(c.created)],['Material',cs(matOf(c))],['Type',c.kind=='kadappa'?'Kadappa':'Marble'],[]);
+R.push(['Length','Breadth','Billed length','Billed breadth','Nos','Area (sq ft)']);
+c.rows.forEach((x,n)=>R.push([cs(x.l),cs(x.w),r.rows[n].L,r.rows[n].B,cs(x.n),nf(r.rows[n].ar)]));
+R.push(['Total','','','',nf(r.N),nf(r.A)],[]);
+R.push(['Contents','Rate','Quantity','Amount']);
+r.lines.forEach(x=>R.push([cs(cap(x.name)),x.hr?nf(x.rt):'',nf(x.q),x.hr?nf(x.am):'']));
+r.fx.forEach(x=>R.push([cs(x.nm),x.h?nf(x.rt):'',x.h?nf(x.q):'',x.h?nf(x.am):'']));
+if(r.hf&&Math.abs(r.adj)>0.005)R.push(['Adjustment','','',nf(r.adj)]);
+R.push(['TOTAL','','',nf(r.tot)],['PAID','','',nf(+c.paid||0)],['BALANCE','','',nf(r.bal)]);return R}
+
+/* tiny ZIP maker (no compression, works offline) */
+const CRC=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=t[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}})();
+function zip(files){const en=new TextEncoder(),P=[],C=[],u16=v=>[v&255,(v>>8)&255],u32=v=>[v&255,(v>>8)&255,(v>>16)&255,(v>>>24)&255],d=new Date(),T=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1),D=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();let off=0;
+files.forEach(f=>{const nm=en.encode(f.n),crc=CRC(f.d),n=f.d.length;
+P.push(new Uint8Array([0x50,0x4b,3,4,20,0,0,8,0,0,...u16(T),...u16(D),...u32(crc),...u32(n),...u32(n),...u16(nm.length),0,0]),nm,f.d);
+C.push(new Uint8Array([0x50,0x4b,1,2,20,0,20,0,0,8,0,0,...u16(T),...u16(D),...u32(crc),...u32(n),...u32(n),...u16(nm.length),0,0,0,0,0,0,0,0,0,0,0,0,...u32(off)]),nm);
+off+=30+nm.length+n});
+const cl=C.reduce((s,x)=>s+x.length,0);
+return new Blob([...P,...C,new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cl),...u32(off),0,0])],{type:'application/zip'})}
+
+/* preview of many bills together (print / pdf / image) */
+function mview(ids){if(ids)MV=ids;const L=MV.map(id=>S.calcs.find(c=>c.id==id)).filter(c=>c&&!c.del);if(!L.length){alert('Select at least one bill.');return}
+$('app').innerHTML=`<div class="noprint"><h1><button class="s" onclick="xs()">← Back</button></h1><div class="row" style="margin:0 0 12px"><button onclick="doPrint()">Print all</button><button onclick="pdfAll()">Save PDF</button><button onclick="img()">Save Images</button>${ctl()}</div><div class="mu" style="margin-bottom:8px">${L.length} bill${L.length>1?'s':''} · ${L.length*(S.sp=='sep'?2:1)} page${L.length*(S.sp=='sep'?2:1)>1?'s':''}. Every bill starts on a new page.</div></div>
+<div id="pws">${L.map(c=>`<div class="sc bw"><div class="bill" data-n="${esc(c.name)}">${bpages(c)}</div></div>`).join('')}</div>`;setPage();fit()}
 const PH=window.PRINT_H||{};const PS={A4:{w:714,h:PH.A4||960},A5:{w:484,h:PH.A5||650}},pp=()=>{const p=PS[S.ps||'A4'];return{w:p.w,h:Math.round(p.h*({n:1,s:.94,x:.88}[S.pf||'n']))}};
 function setPage(){$('pg').textContent='@page{size:'+(S.ps||'A4')+' portrait;margin:10mm}'}
-function unfit(){const b=$('bill'),w=$('pw');if(!b||!w)return;b.style.transform='';b.style.transformOrigin='';b.style.width=PS[S.ps||'A4'].w+'px';w.style.width='';w.style.height='';w.style.overflow='';b.querySelectorAll('.pg').forEach(x=>x.style.minHeight='')}
-function fit(){const b=$('bill');if(!b)return;unfit();const P=pp(),G=[...b.querySelectorAll('.pg')],g=G[0],T=[...b.querySelectorAll('tr.dr')];
+const bills=()=>[...document.querySelectorAll('.bill')];
+function unfit1(b){const w=b.parentElement;b.style.transform='';b.style.transformOrigin='';b.style.width=PS[S.ps||'A4'].w+'px';w.style.width='';w.style.height='';w.style.overflow='';b.querySelectorAll('.pg').forEach(x=>x.style.minHeight='')}
+function unfit(){bills().forEach(unfit1)}
+function fit1(b){unfit1(b);const P=pp(),G=[...b.querySelectorAll('.pg')],g=G[0],T=[...b.querySelectorAll('tr.dr')];
 T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=''));g.style.minHeight='0';
 const extra=P.h-g.offsetHeight;if(extra>0&&T.length){const per=Math.max(0,Math.min(16,Math.floor(extra*0.9/T.length/2)));T.forEach(t=>[...t.cells].forEach(c=>c.style.padding=(3+per)+'px 6px'))}
 G.forEach(x=>x.style.minHeight=P.h+'px')}
-function printFit(){const b=$('bill'),w=$('pw'),P=pp();unfit();if(S.sp=='sep'){fit();return}
+function fit(){bills().forEach(fit1)}
+function pfit1(b){const w=b.parentElement,P=pp();unfit1(b);if(S.sp=='sep'){fit1(b);return}
 const g=b.querySelector('.pg');b.querySelectorAll('tr.dr td').forEach(c=>c.style.padding='');g.style.minHeight='0';let H=b.offsetHeight;
-if(H<=P.h){fit();return}
+if(H<=P.h){fit1(b);return}
 let s=1;for(let i=0;i<8;i++){const n=Math.min(1,P.h/H);if(Math.abs(n-s)<0.004)break;s=n;b.style.width=Math.round(P.w/s)+'px';H=b.offsetHeight}
 if(H*s>P.h)s=P.h/H;b.style.transformOrigin='top left';b.style.transform='scale('+s+')';w.style.width=P.w+'px';w.style.height=Math.floor(H*s)+'px';w.style.overflow='hidden'}
+function printFit(){bills().forEach(pfit1)}
 function doPrint(){printFit();window.onafterprint=()=>{unfit();fit()};setTimeout(()=>window.print(),100)}
-function img(){unfit();fit();const m=$('md');m.style.display='block';m.innerHTML='<p style="color:#fff">Preparing image…</p>';
-html2canvas($('bill'),{scale:3,backgroundColor:'#fff'}).then(cv=>{const u=cv.toDataURL('image/png');
-m.innerHTML=`<p style="color:#fff">Press and hold the image to save it, or use Share.</p><img src="${u}"><div class="row"><a class="bt" download="${cur.name.replace(/\W+/g,'_')}.png" href="${u}">Download</a><button id="sh">Share</button><button class="s" onclick="$('md').style.display='none'">Close</button></div>`;
-$('sh').onclick=()=>cv.toBlob(bl=>{try{navigator.share({files:[new File([bl],cur.name.replace(/\W+/g,'_')+'.png',{type:'image/png'})],title:cur.name}).catch(()=>{})}catch(e){alert('Share not supported. Press and hold the image to save.')}})}).catch(()=>{m.innerHTML='<p style="color:#fff">Could not make image. Use Print → Save as PDF.</p><button onclick="$(\'md\').style.display=\'none\'">Close</button>'})}
+function img(){unfit();fit();const m=$('md'),L=bills();m.style.display='block';m.innerHTML='<p style="color:#fff">Preparing image…</p>';
+Promise.all(L.map(b=>html2canvas(b,{scale:L.length>3?2:3,backgroundColor:'#fff'}))).then(K=>{const U8=K.map(k=>k.toDataURL('image/png')),N=L.map((b,i)=>safeN((b.dataset&&b.dataset.n)||('bill'+(i+1))));
+m.innerHTML=`<p style="color:#fff">Press and hold an image to save it, or use Download / Share.</p>${U8.map((u,i)=>`<div style="color:#fff;margin:10px 0 4px">${i+1}. ${esc(N[i])}</div><img src="${u}"><div class="row"><a class="bt" download="${esc(N[i])}.png" href="${u}">Download</a></div>`).join('')}<div class="row">${L.length>1?'<button id="da">Download all</button>':''}<button id="sh">Share${L.length>1?' all':''}</button><button class="s" onclick="$(\'md\').style.display=\'none\'">Close</button></div>`;
+const da=$('da');if(da)da.onclick=()=>U8.forEach((u,i)=>setTimeout(()=>{const a=document.createElement('a');a.href=u;a.download=N[i]+'.png';document.body.appendChild(a);a.click();a.remove()},i*600));
+$('sh').onclick=()=>Promise.all(K.map((k,i)=>new Promise(r=>k.toBlob(bl=>r(new File([bl],N[i]+'.png',{type:'image/png'})))))).then(F=>{try{navigator.share({files:F,title:N[0]}).catch(()=>{})}catch(e){alert('Share not supported. Press and hold the image to save.')}})}).catch(()=>{m.innerHTML='<p style="color:#fff">Could not make image. Use Print and choose Save as PDF.</p><button onclick="$(\'md\').style.display=\'none\'">Close</button>'})}
+async function pdfAll(){if(!(window.jspdf&&window.jspdf.jsPDF)){alert('PDF maker could not load (internet is needed). Use Print and choose Save as PDF.');return}
+unfit();fit();const m=$('md');m.style.display='block';m.innerHTML='<p style="color:#fff">Making PDF…</p>';
+try{const A5=S.ps=='A5',W=A5?148:210,H=A5?210:297,M=10,iw=W-2*M,ih=H-2*M,doc=new window.jspdf.jsPDF({unit:'mm',format:A5?'a5':'a4',orientation:'portrait'});let first=true;
+for(const b of bills())for(const g of b.querySelectorAll('.pg')){const k=await html2canvas(g,{scale:2.5,backgroundColor:'#fff'});let w=iw,h=w*k.height/k.width;if(h>ih){h=ih;w=h*k.width/k.height}if(!first)doc.addPage();first=false;doc.addImage(k.toDataURL('image/jpeg',.95),'JPEG',M+(iw-w)/2,M,w,h)}
+doc.save((MV?'Bills_'+tdy():String(cur.name).replace(/\W+/g,'_'))+'.pdf');m.style.display='none'}catch(e){m.innerHTML='<p style="color:#fff">Could not make the PDF. Use Print and choose Save as PDF.</p><button onclick="$(\'md\').style.display=\'none\'">Close</button>'}}
 function biz(){const b=S.biz;$('app').innerHTML=`<h1><button class="s" onclick="home()">← Back</button></h1><div class="card"><b>Business details (shown on bill)</b>
 ${[['name','Business name'],['phone','Mobile numbers'],['addr','Tagline / address']].map(([k,l])=>`<div style="margin-top:8px"><label>${l}</label><textarea rows="${k=='addr'?4:1}" data-b="${k}">${esc(b[k]||'')}</textarea></div>`).join('')}</div>`;
 document.querySelectorAll('[data-b]').forEach(e=>e.oninput=()=>{S.biz[e.dataset.b]=e.value;save()})}
