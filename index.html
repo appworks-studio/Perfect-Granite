@@ -19,7 +19,7 @@ label{display:block;font-size:12px;color:var(--mu);margin-bottom:2px}
 input,select,textarea{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
 .g{display:grid;gap:8px;grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
 button{padding:10px 16px;border:0;border-radius:10px;background:var(--ac);color:#fff;font:inherit;font-weight:600}
-button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}button:disabled{opacity:.4}.bw+.bw{margin-top:14px}.ic{background:transparent!important;color:#b3261e!important;border:0;padding:6px 8px;font-size:19px;width:auto;min-width:0;line-height:1}summary{cursor:pointer;padding:6px 0}.sec>summary{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0;font-weight:700;list-style:none}.sec>summary::-webkit-details-marker{display:none}.sec>summary::after{content:'▾';color:var(--mu);margin-left:6px;transition:transform .15s}.sec[open]>summary::after{transform:rotate(180deg)}.sec>summary>span:nth-child(2){flex:1;text-align:right;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sec[open]>summary{margin-bottom:10px}.mn{position:absolute;right:0;top:46px;z-index:6;background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:200px;padding:6px;display:none}.mn button{display:block;width:100%;text-align:left;background:transparent;color:var(--tx);font-weight:500;padding:11px 12px}.mn button.d{color:#b3261e;background:transparent}.tb{position:fixed;left:0;right:0;bottom:0;z-index:4;background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -2px 10px rgba(0,0,0,.08);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;font-size:17px}button.sm{padding:5px 12px;font-size:13px}label.ck{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--tx);margin:0}#ls .li:first-child{border-top:0}.li{cursor:pointer}
+button.s{background:var(--bd);color:var(--tx)}button.d{background:#b3261e}button:disabled{opacity:.4}.bw+.bw{margin-top:14px}.ic{background:transparent!important;color:#b3261e!important;border:0;padding:6px 8px;font-size:19px;width:auto;min-width:0;line-height:1}summary{cursor:pointer;padding:6px 0}.sec>summary{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0;font-weight:700;list-style:none}.sec>summary::-webkit-details-marker{display:none}.sec>summary::after{content:'▾';color:var(--mu);margin-left:6px;transition:transform .15s}.sec[open]>summary::after{transform:rotate(180deg)}.sec>summary>span:nth-child(2){flex:1;text-align:right;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sec[open]>summary{margin-bottom:10px}.mn{position:absolute;right:0;top:46px;z-index:6;background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:200px;padding:6px;display:none}.mn button{display:block;width:100%;text-align:left;background:transparent;color:var(--tx);font-weight:500;padding:11px 12px}.mn button.d{color:#b3261e;background:transparent}.tb{position:fixed;left:0;right:0;bottom:0;z-index:4;background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -2px 10px rgba(0,0,0,.08);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;font-size:17px}button.sm{padding:5px 12px;font-size:13px}label.ck{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--tx);margin:0}#ls .li:first-child{border-top:0}.li{cursor:pointer}.shi{background:#fff;color:#111;width:560px;padding:22px 24px;border:1px solid #ddd;border-radius:6px;font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}.shi .sh-t{display:flex;justify-content:space-between;gap:16px;margin-bottom:16px;font-size:16px}.shi .sh-t b{font-size:18px}.shi table{width:100%;border-collapse:collapse}.shi th,.shi td{border:1px solid #333;padding:7px 8px;text-align:center}.shi th{background:#eceae4;font-weight:700}.xlv{border-collapse:collapse;font:13px Calibri,Arial,sans-serif;background:#fff;color:#000}.xlv th{background:#f0f0f0;border:1px solid #c8c8c8;font-weight:400;padding:2px 8px;text-align:center;color:#555}.xlv td{border:1px solid #d4d4d4;padding:3px 10px;min-width:78px;height:21px;white-space:nowrap}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .it{border-top:1px dashed var(--bd);padding-top:8px;margin-top:8px}
 .li{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--bd)}
@@ -240,8 +240,15 @@ $('app').innerHTML=`<h1><button class="s" onclick="${cur?'ed()':'home()'}">← B
 <div class="card"><b>Export bills</b><div class="mu">Tick the bills you want, then choose what to do below.</div>
 <input id="xq" type="search" placeholder="Search name, customer, mobile, date" oninput="XQ=this.value;xl()" value="${esc(XQ)}" style="margin:8px 0">
 <div class="row" style="margin:0 0 6px"><button class="s" onclick="xa(1)">Select all shown</button><button class="s" onclick="xa(0)">Clear</button></div><div class="mu" id="xc"></div><div id="xl"></div></div>
-<div class="card"><b>Print / PDF / Image</b><div class="mu">Each bill starts on a new page (2 pages per bill if Price is set to a separate page).</div><div class="row"><button onclick="xgo('v')">Preview selected bills</button></div></div>
-<div class="card"><b>Excel (CSV)</b><div class="mu">Only the ticked bills.</div><div class="row"><button class="s" onclick="xgo('c1')">One file: bill summary</button><button class="s" onclick="xgo('c2')">One file: all pieces</button></div><div class="row"><button class="s" onclick="xgo('cz')">Separate file for each bill (one ZIP)</button><button class="s" onclick="xgo('cs')">Separate files, one by one</button></div></div>`;xl()}
+<div class="card"><b>Full bills (Print / PDF / Image)</b><div class="mu">Each bill starts on a new page (2 pages per bill if Price is set to a separate page).</div><div class="row"><button class="s" onclick="xgo('v')">Open selected bills</button></div></div>
+<div class="card"><b>Excel sheet</b><div class="mu" style="margin:4px 0 8px">Customer name and mobile on the top right, material and type on the top left, then Length, Breadth, Nos, Molding and Molding type.</div>
+<label class="ck" style="margin:8px 0"><input type="checkbox" style="width:auto" ${XF.csv?'checked':''} onchange="XF.csv=this.checked"> CSV file (opens in Excel)</label>
+<label class="ck" style="margin:8px 0"><input type="checkbox" style="width:auto" ${XF.img?'checked':''} onchange="XF.img=this.checked"> Image (PNG)</label>
+<div class="mu" style="margin:12px 0 2px">When many bills are ticked (one bill always downloads its files directly)</div>
+<label class="ck" style="margin:8px 0"><input type="radio" name="pk" style="width:auto" ${XF.zip?'checked':''} onchange="XF.zip=true"> One ZIP file</label>
+<label class="ck" style="margin:8px 0"><input type="radio" name="pk" style="width:auto" ${XF.zip?'':'checked'} onchange="XF.zip=false"> Separate files, one by one</label>
+<div class="row"><button style="width:100%" onclick="xdl()">Download</button></div><div class="row"><button class="s" style="width:100%" onclick="xpv()">Preview</button></div></div>
+<details class="card sec"><summary><span>More Excel files</span><span class="mu">all bills in one file</span></summary><div class="row" style="margin-top:0"><button class="s" onclick="xgo('c1')">One file: bill summary</button><button class="s" onclick="xgo('c2')">One file: all pieces</button></div></details>`;xl()}
 const xc=()=>{const e=$('xc');if(e)e.textContent=XS.size+' selected'};
 function xl(){const T=XQ.toLowerCase().split(/\s+/).filter(Boolean),L=act().map(c=>({c,r:calc(c)})).filter(({c,r})=>!T.length||T.every(t=>hay(c,r).includes(t))).sort((a,b)=>b.c.created-a.c.created);XSH=L.map(x=>x.c.id);
 const e=$('xl');if(e)e.innerHTML=L.length?L.map(({c,r})=>`<label class="li" style="align-items:center;cursor:pointer"><span style="display:flex;gap:10px;align-items:center"><input type="checkbox" style="width:auto" ${XS.has(c.id)?'checked':''} onchange="xt('${c.id}',this.checked)"><span><b>${esc(c.name)}</b><div class="mu">${esc(c.customer||'No customer')} · ${fdn(c.created)}</div></span></span><b>₹${f2(r.tot)}</b></label>`).join(''):'<div class="mu">No bills found.</div>';xc()}
@@ -249,21 +256,36 @@ function xt(id,on){if(on)XS.add(id);else XS.delete(id);xc()}
 function xa(on){if(on)XSH.forEach(id=>XS.add(id));else XS.clear();xl()}
 function xgo(m){const L=act().filter(c=>XS.has(c.id)).sort((a,b)=>a.created-b.created);if(!L.length){alert('Tick at least one bill first.');return}
 if(m=='v'){mview(L.map(c=>c.id));return}
-if(m=='c1'){expB(L);return}if(m=='c2'){expP(L);return}
-const used={},F=L.map(c=>{const n=safeN(c.name);let k=n,i=2;while(used[k.toLowerCase()])k=n+'_'+i++;used[k.toLowerCase()]=1;return{n:k+'.csv',R:billRows(c)}});
-if(m=='cs'){F.forEach((f,i)=>setTimeout(()=>dl(f.n,f.R),i*700));return}
-if(m=='cz'){const en=new TextEncoder();dlb('Granite_bills_'+tdy()+'.zip',zip(F.map(f=>({n:f.n,d:en.encode(csvT(f.R))}))))}}
+if(m=='c1'){expB(L);return}if(m=='c2'){expP(L);return}}
 
-/* one bill = one CSV */
-function billRows(c){const r=calc(c),R=[];R.push(['Bill',cs(c.name)],['Customer',cs(c.customer)],['Mobile',cm(c.mob)],['Date',fdn(c.created)],['Material',cs(matOf(c))],['Type',c.kind=='kadappa'?'Kadappa':'Marble'],[]);
-R.push(['Length','Breadth','Billed length','Billed breadth','Nos','Area (sq ft)','Molding','Molding type','Molding (rft)']);
-c.rows.forEach((x,n)=>R.push([cs(x.l),cs(x.w),r.rows[n].L,r.rows[n].B,cs(x.n),nf(r.rows[n].ar),x.mo?'Yes':'No',x.mo?cs(cap(x.mt||'')):'',x.mo?nf(r.rows[n].mo):'']));
-R.push(['Total','','','',nf(r.N),nf(r.A),'','',nf(r.MO)],[]);
-R.push(['Contents','Rate','Quantity','Amount']);
-r.lines.forEach(x=>R.push([cs(cap(x.name)),x.hr?nf(x.rt):'',nf(x.q),x.hr?nf(x.am):'']));
-r.fx.forEach(x=>R.push([cs(x.nm),x.h?nf(x.rt):'',x.h?nf(x.q):'',x.h?nf(x.am):'']));
-if(r.hf&&Math.abs(r.adj)>0.005)R.push(['Adjustment','','',nf(r.adj)]);
-R.push(['TOTAL','','',nf(r.tot)],['PAID','','',nf(+c.paid||0)],['BALANCE','','',nf(r.bal)]);return R}
+/* ---------- Excel sheet: CSV + Image of the same sheet, with preview ---------- */
+let XF={csv:true,img:true,zip:true},SH={ids:[],i:0,mode:'xl'};
+const SHH=['Length','Breadth','Nos','Molding','Molding type'];
+function sheetData(c){return{mat:cap(matOf(c)||'').trim(),type:c.kind=='kadappa'?'Kadappa':'Marble',name:String(c.customer||'').trim(),mob:String(c.mob||'').trim(),
+rows:c.rows.map(x=>[String(x.l==null?'':x.l),String(x.w==null?'':x.w),String(x.n==null?'':x.n),x.mo?'Yes':'No',x.mo?cap(x.mt||''):''])}}
+const sheetGrid=d=>[[d.mat,'','','',d.name],[d.type,'','','',d.mob],['','','','',''],SHH,...d.rows];
+const sheetRows=c=>sheetGrid(sheetData(c)).map((r,i)=>r.map((v,j)=>i==1&&j==4?cm(v):cs(v)));
+function sheetImg(c){const d=sheetData(c);return`<div class="shi"><div class="sh-t"><div><b>${esc(d.mat)}</b><div>${esc(d.type)}</div></div><div style="text-align:right"><b>${esc(d.name)}</b><div>${esc(d.mob)}</div></div></div><table><thead><tr>${SHH.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${d.rows.map(r=>`<tr>${r.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+function sheetXl(c){const g=sheetGrid(sheetData(c));return`<table class="xlv"><thead><tr><th></th>${'ABCDE'.split('').map(l=>`<th>${l}</th>`).join('')}</tr></thead><tbody>${g.map((r,i)=>`<tr><th>${i+1}</th>${r.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`}
+function xpv(){const L=act().filter(c=>XS.has(c.id)).sort((a,b)=>a.created-b.created);if(!L.length){alert('Tick at least one bill first.');return}SH={ids:L.map(c=>c.id),i:0,mode:SH.mode||'xl'};shv()}
+function shv(){const L=SH.ids.map(id=>S.calcs.find(c=>c.id==id)).filter(c=>c&&!c.del);if(!L.length){xs();return}if(SH.i>=L.length)SH.i=0;const c=L[SH.i],z=Math.min(1,((window.innerWidth||390)-28)/560);
+$('app').innerHTML=`<h1><button class="s" onclick="xs()">← Back</button></h1><div class="card"><b>Preview</b><div class="mu" style="margin:4px 0">${L.length>1?'Bill '+(SH.i+1)+' of '+L.length+'. ':''}This is how the sheet will look.</div>
+<div class="row"><button class="${SH.mode=='xl'?'':'s'}" style="flex:1" onclick="SH.mode='xl';shv()">Excel view</button><button class="${SH.mode=='img'?'':'s'}" style="flex:1" onclick="SH.mode='img';shv()">Image view</button></div>
+${L.length>1?`<div class="row"><button class="s" style="flex:1" onclick="SH.i=(SH.i+${L.length-1})%${L.length};shv()">◀ Previous</button><button class="s" style="flex:1" onclick="SH.i=(SH.i+1)%${L.length};shv()">Next ▶</button></div>`:''}</div>
+<div class="sc" style="margin-bottom:10px">${SH.mode=='img'?`<div style="zoom:${z}">${sheetImg(c)}</div>`:sheetXl(c)}</div>
+<div class="mu">File name: ${esc(safeN(c.name))}${SH.mode=='img'?'.png':'.csv'}${SH.mode=='xl'?'. In real Excel the look can differ a little (fonts, column width).':''}</div>`}
+async function xdl(){const L=act().filter(c=>XS.has(c.id)).sort((a,b)=>a.created-b.created);if(!L.length){alert('Tick at least one bill first.');return}
+if(!XF.csv&&!XF.img){alert('Tick CSV or Image (or both).');return}
+if(XF.img&&!window.html2canvas){alert('Image maker could not load (internet is needed). Untick Image to download only the CSV.');return}
+const m=$('md'),en=new TextEncoder(),used={},F=[];let host=null;m.style.display='block';m.innerHTML='<p style="color:#fff">Making files…</p>';
+try{if(XF.img){host=document.createElement('div');host.style.cssText='position:fixed;left:-10000px;top:0;width:560px;background:#fff';document.body.appendChild(host)}
+for(const c of L){const n=safeN(c.name);let k=n,i=2;while(used[k.toLowerCase()])k=n+'_'+i++;used[k.toLowerCase()]=1;
+if(XF.csv)F.push({n:k+'.csv',d:en.encode(csvT(sheetRows(c)))});
+if(XF.img){host.innerHTML=sheetImg(c);const cv=await html2canvas(host.firstChild,{scale:3,backgroundColor:'#fff'}),b=await new Promise(r=>cv.toBlob(r,'image/png'));F.push({n:k+'.png',d:new Uint8Array(await b.arrayBuffer())})}}
+const mime=n=>n.endsWith('.png')?'image/png':'text/csv;charset=utf-8';
+if(L.length==1||!XF.zip)F.forEach((f,i)=>setTimeout(()=>dlb(f.n,new Blob([f.d],{type:mime(f.n)})),i*700));
+else dlb('Granite_sheets_'+tdy()+'.zip',zip(F));
+m.style.display='none'}catch(e){m.innerHTML='<p style="color:#fff">Could not make the files. Try CSV only.</p><button class="s" onclick="$(\'md\').style.display=\'none\'">Close</button>'}finally{if(host)host.remove()}}
 
 /* tiny ZIP maker (no compression, works offline) */
 const CRC=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=t[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}})();
